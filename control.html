@@ -11,6 +11,10 @@
     <meta http-equiv="x-ua-compatible" content="IE=EmulateIE7; IE=7; IE=8; IE=9; IE=10" />
     <link rel="stylesheet" href="bootstrap.min.css" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="bootstrap-select.min.css" />
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap.min.js"></script>
+    <script type="text/javascript" src="bootstrap-select.min.js"></script>
   </head>
   <body>
       <nav class="navbar navbar-default">
@@ -36,12 +40,20 @@
             <input id="turl" type="text" name="url" class="form-control" placeholder="Enter a url to record…" /> 
           </div>
           <div class="form-group">
+            <select class="selectpicker" data-width="100%" data-style="btn-primary">
+              <option>CasperJS</option>
+              <option>NightwatchJS(normal)</option>
+              <option>NightwatchJS(mocha)</option>
+              <option>TestCafeJS</option>
+            </select>
+          </div>
+          <div class="form-group">
             <input type="submit" class="btn btn-success btn-lg btn-block" id="bgo" value="Start Recording" />
             <input type="submit" class="btn btn-primary btn-lg btn-block hide" id="bstop" name="bstop" value="Stop Recording" />
             <input type="submit" class="btn btn-default btn-lg btn-block hide" id="bcomment" name="bcomment" value="Add Comment" />
-            <input type="submit" class="btn btn-primary btn-md btn-block hide" id="bdownload" name="download" value="Download CasperJS" />
-            <input type="submit" class="btn btn-default btn-md btn-block hide" id="bexport" name="bexport" value="Export CasperJS" />
-            <input type="submit" class="btn btn-default btn-md btn-block hide" id="bexportxy" name="bexportxy" value="Export CasperJS with (x,y) coords" /> 
+            <input type="submit" class="btn btn-primary btn-md btn-block hide" id="bdownload" name="download" value="Download JS" />
+            <input type="submit" class="btn btn-default btn-md btn-block hide" id="bexport" name="bexport" value="Export JS" />
+            <input type="submit" class="btn btn-default btn-md btn-block hide" id="bexportxy" name="bexportxy" value="Export JS with (x,y) coords" /> 
             <input type="submit" class="btn btn-default btn-md btn-block hide" id="bdoc" name="bdoc" value="Export doc" /> 
           </div>
           <div id="comment" class="hide">

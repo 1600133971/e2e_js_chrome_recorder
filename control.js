@@ -57,6 +57,8 @@ RecorderUI.prototype.start = function() {
     }
     ui.set_started()
     ui.recorder.start(url);
+
+    $('.selectpicker').prop('disabled', true);
   
     return false;
 }
@@ -91,9 +93,10 @@ RecorderUI.prototype.set_started = function() {
 }
 
 RecorderUI.prototype.stop = function() {
-  ui.set_stopped();
-	ui.recorder.stop();
-	return false;
+    ui.set_stopped();
+    ui.recorder.stop();
+    $('.selectpicker').prop('disabled', false);
+    return false;
 }
 
 RecorderUI.prototype.set_stopped = function() {
@@ -150,10 +153,32 @@ RecorderUI.prototype.hidecomment = function(bsave) {
 }
 
 RecorderUI.prototype.export = function(options) {
-  if(options && options.xy) {
-    chrome.tabs.create({url: "./casper.html?xy=true"});
-  } else {
-    chrome.tabs.create({url: "./casper.html"});
+  var typeJS = $('.selectpicker').selectpicker('val');
+
+  switch (typeJS) {
+    case 'CasperJS':
+      if(options && options.xy) {
+        chrome.tabs.create({url: "./casper.html?xy=true"});
+      } else {
+        chrome.tabs.create({url: "./casper.html"});
+      }
+      break;
+
+    case 'NightwatchJS(normal)':
+
+      break;
+
+    case 'NightwatchJS(mocha)':
+
+      break;
+
+    case 'TestCafeJS':
+
+      break;
+
+    default:
+
+      break;
   }
 }
 
@@ -162,7 +187,28 @@ RecorderUI.prototype.exportdoc = function(bexport) {
 }
 
 RecorderUI.prototype.download = function(){
-    chrome.tabs.create({url: "./casper.html?download=true"});
+  var typeJS = $('.selectpicker').selectpicker('val');
+  switch (typeJS) {
+    case 'CasperJS':
+      chrome.tabs.create({url: "./casper.html?download=true"});
+      break;
+
+    case 'NightwatchJS(normal)':
+
+      break;
+
+    case 'NightwatchJS(mocha)':
+
+      break;
+
+    case 'TestCafeJS':
+
+      break;
+
+    default:
+    
+      break;
+  }
 }
 
 RecorderUI.prototype.setBtnGoState = function(){
@@ -185,6 +231,11 @@ var ui;
 
 // bind events to ui elements
 window.onload = function(){
+    $('.selectpicker').selectpicker({
+      style: 'btn-info',
+      size: 4
+    });
+
     document.querySelector('input#bgo').onclick=function() {ui.start(); return false;};
     document.querySelector('input#bstop').onclick=function() {ui.stop(); return false;};
     document.querySelector('input#bcomment').onclick=function() {ui.showcomment(); return false;};
@@ -198,3 +249,7 @@ window.onload = function(){
     ui = new RecorderUI();
     ui.setBtnGoState();
 }
+
+$('.selectpicker').on('changed.bs.select',function(e){
+
+});
