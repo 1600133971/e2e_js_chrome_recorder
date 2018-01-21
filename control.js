@@ -153,8 +153,7 @@ RecorderUI.prototype.hidecomment = function(bsave) {
 }
 
 RecorderUI.prototype.export = function(options) {
-  var typeJS = $('.selectpicker').selectpicker('val');
-
+  var typeJS = localStorage.getItem("typeJS");
   switch (typeJS) {
     case 'CasperJS':
       if(options && options.xy) {
@@ -165,7 +164,11 @@ RecorderUI.prototype.export = function(options) {
       break;
 
     case 'NightwatchJS(normal)':
-
+      if(options && options.xy) {
+        chrome.tabs.create({url: "./nightwatch.html?xy=true"});
+      } else {
+        chrome.tabs.create({url: "./nightwatch.html"});
+      }
       break;
 
     case 'NightwatchJS(mocha)':
@@ -187,14 +190,14 @@ RecorderUI.prototype.exportdoc = function(bexport) {
 }
 
 RecorderUI.prototype.download = function(){
-  var typeJS = $('.selectpicker').selectpicker('val');
+  var typeJS = localStorage.getItem("typeJS");
   switch (typeJS) {
     case 'CasperJS':
       chrome.tabs.create({url: "./casper.html?download=true"});
       break;
 
     case 'NightwatchJS(normal)':
-
+      chrome.tabs.create({url: "./nightwatch.html?download=true"});
       break;
 
     case 'NightwatchJS(mocha)':
@@ -231,10 +234,13 @@ var ui;
 
 // bind events to ui elements
 window.onload = function(){
-    $('.selectpicker').selectpicker({
-      style: 'btn-info',
-      size: 4
-    });
+    $('.selectpicker').selectpicker({ style: 'btn-info', size: 4});
+    var typeJS = localStorage.getItem("typeJS");
+    if (typeJS) {
+        $('.selectpicker').selectpicker('val', typeJS);
+    } else {
+        localStorage.setItem('typeJS', $('.selectpicker').selectpicker('val'));
+    }
 
     document.querySelector('input#bgo').onclick=function() {ui.start(); return false;};
     document.querySelector('input#bstop').onclick=function() {ui.stop(); return false;};
@@ -251,5 +257,5 @@ window.onload = function(){
 }
 
 $('.selectpicker').on('changed.bs.select',function(e){
-
+    localStorage.setItem('typeJS', $('.selectpicker').selectpicker('val'));
 });
