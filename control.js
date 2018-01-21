@@ -57,8 +57,6 @@ RecorderUI.prototype.start = function() {
     }
     ui.set_started()
     ui.recorder.start(url);
-
-    $('.selectpicker').prop('disabled', true);
   
     return false;
 }
@@ -89,14 +87,14 @@ RecorderUI.prototype.set_started = function() {
     });
     chrome.browserAction.setBadgeBackgroundColor({
         "color": "#c53929"
-    })
+    });
+    $('.selectpicker').prop('disabled', true);
 }
 
 RecorderUI.prototype.stop = function() {
-    ui.set_stopped();
-    ui.recorder.stop();
-    $('.selectpicker').prop('disabled', false);
-    return false;
+  ui.set_stopped();
+	ui.recorder.stop();
+	return false;
 }
 
 RecorderUI.prototype.set_stopped = function() {
@@ -123,7 +121,8 @@ RecorderUI.prototype.set_stopped = function() {
     });
     chrome.browserAction.setBadgeBackgroundColor({
         "color": ""
-    })
+    });
+    $('.selectpicker').prop('disabled', false);
 }
 
 RecorderUI.prototype.showcomment = function() {
@@ -163,7 +162,7 @@ RecorderUI.prototype.export = function(options) {
       }
       break;
 
-    case 'NightwatchJS(normal)':
+    case 'NightwatchJS':
       if(options && options.xy) {
         chrome.tabs.create({url: "./nightwatch.html?xy=true"});
       } else {
@@ -171,8 +170,12 @@ RecorderUI.prototype.export = function(options) {
       }
       break;
 
-    case 'NightwatchJS(mocha)':
-
+    case 'NightingaleJS':
+      if(options && options.xy) {
+        chrome.tabs.create({url: "./nightingale.html?xy=true"});
+      } else {
+        chrome.tabs.create({url: "./nightingale.html"});
+      }
       break;
 
     case 'TestCafeJS':
@@ -196,12 +199,12 @@ RecorderUI.prototype.download = function(){
       chrome.tabs.create({url: "./casper.html?download=true"});
       break;
 
-    case 'NightwatchJS(normal)':
+    case 'NightwatchJS':
       chrome.tabs.create({url: "./nightwatch.html?download=true"});
       break;
 
-    case 'NightwatchJS(mocha)':
-
+    case 'NightingaleJS':
+      chrome.tabs.create({url: "./nightingale.html?download=true"});
       break;
 
     case 'TestCafeJS':

@@ -50,7 +50,7 @@ NightwatchRenderer.prototype.text = function(txt) {
 
 NightwatchRenderer.prototype.stmt = function(text, indent) {
   if(indent==undefined) indent = 1;
-  var output = (new Array(2*indent)).join(" ") + text;
+  var output = (new Array(2*indent)).fill(" ").join("") + text;
   this.document.writeln(output);
 }
 
@@ -310,8 +310,8 @@ NightwatchRenderer.prototype.click = function(item) {
     }
     xpath_selector && this.stmt('.useXpath()');
     console.log("xpath: " + selector);
-    this.stmt('.waitForElementVisible('+ selector + ', DEFAULT_TIMEOUT)', 3);
-    this.stmt('.customClick('+ selector + ')', 3);
+    this.stmt('.waitForElementVisible('+ selector + ', ' + DEFAULT_TIMEOUT+ ')', 3);
+    this.stmt('.click('+ selector + ')', 3);
     xpath_selector && this.stmt('.useCss()');
   }
 }
@@ -333,7 +333,7 @@ NightwatchRenderer.prototype.getFormSelector = function(item) {
 NightwatchRenderer.prototype.keypress = function(item) {
   var text = item.text.replace('\n','').replace('\r', '\\r');
   console.log("key: " + text);
-  this.stmt('.waitForElementVisible("' + this.getControl(item) + '", DEFAULT_TIMEOUT)', 3);
+  this.stmt('.waitForElementVisible("' + this.getControl(item) + '", ' + DEFAULT_TIMEOUT + ')', 3);
   this.stmt('.setValue("' + this.getControl(item) + '", "' + text + '")', 3);
 }
 
@@ -449,7 +449,7 @@ NightwatchRenderer.prototype.checkImageSrc = function(item) {
 NightwatchRenderer.prototype.waitAndTestSelector = function(selector, xpathSelector) {
   xpathSelector && this.stmt('.useXpath()');
   console.log("wait and test selector");
-  this.stmt('.waitForElementVisible(' + selector + ', DEFAULT_TIMEOUT)', 3);
+  this.stmt('.waitForElementVisible(' + selector + ', ' + DEFAULT_TIMEOUT + ')', 3);
   this.stmt('.expect.element(' + selector + ').visible(' + selector + ')', 3);
   xpathSelector && this.stmt('.useCss()');
 }
