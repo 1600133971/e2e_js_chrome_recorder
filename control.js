@@ -179,7 +179,11 @@ RecorderUI.prototype.export = function(options) {
       break;
 
     case 'TestCafeJS':
-
+      if(options && options.xy) {
+        chrome.tabs.create({url: "./testcafe.html?xy=true"});
+      } else {
+        chrome.tabs.create({url: "./testcafe.html"});
+      }
       break;
 
     default:
@@ -208,7 +212,7 @@ RecorderUI.prototype.download = function(){
       break;
 
     case 'TestCafeJS':
-
+      chrome.tabs.create({url: "./testcafe.html?download=true"});
       break;
 
     default:
