@@ -31,6 +31,7 @@ EventTypes.MouseUp = 20;
 EventTypes.MouseDrag = 21;
 EventTypes.MouseDrop = 22;
 EventTypes.KeyPress = 23;
+EventTypes.MouseOver = 24;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -118,7 +119,7 @@ TestCafeRenderer.prototype.cleanStringForXpath = function(str, escape)  {
 var d = {};
 d[EventTypes.OpenUrl] = "openUrl";
 d[EventTypes.Click] = "click";
-//d[EventTypes.Change] = "change";
+d[EventTypes.Change] = "change";
 d[EventTypes.Comment] = "comment";
 d[EventTypes.Submit] = "submit";
 d[EventTypes.CheckPageTitle] = "checkPageTitle";
@@ -138,6 +139,7 @@ d[EventTypes.ScreenShot] = "screenShot";
 d[EventTypes.MouseUp] = "mouseup"; */
 d[EventTypes.MouseDrag] = "mousedrag";
 d[EventTypes.KeyPress] = "keypress";
+d[EventTypes.MouseOver] = "mouseover";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -176,15 +178,15 @@ TestCafeRenderer.prototype.render = function(with_xy, download) {
     }
     if(item.type==etypes.MouseUp && last_down) {
       if(last_down.x == item.x && last_down.y == item.y) {
-        forget_click = false;
-        continue;
+        //模拟点击操作(hov点击chrome不能获取事件)
+        this[this.dispatch[etypes.Click]](item);
       } else {
         item.before = last_down;
         this[this.dispatch[etypes.MouseDrag]](item);
-        last_down = null;
-        forget_click = true;
-        continue;
       }
+      last_down = null;
+      forget_click = true;
+      continue;
     }
     if(item.type==etypes.Click && forget_click) {
       forget_click = false;
@@ -214,12 +216,12 @@ TestCafeRenderer.prototype.render = function(with_xy, download) {
 TestCafeRenderer.prototype.writeHeader = function(download) {
   var date = new Date();
   if(!download){
-    this.text("/*==============================================================================*/", 0);
-    this.text("/* TestCafe generated " + date + " */", 0);
-    this.text("/*==============================================================================*/", 0);
+    this.text("//==============================================================================", 0);
+    this.text("// TestCafe generated " + date + " ", 0);
+    this.text("//==============================================================================", 0);
     this.space();
   }
-  this.stmt("import { Selector } from 'testcafe';", 0);
+  this.stmt("import { Selector, t } from 'testcafe';", 0);
   this.stmt("fixture `fixture demo`", 0);
 }
 TestCafeRenderer.prototype.writeFooter = function() {
@@ -269,15 +271,15 @@ TestCafeRenderer.prototype.getControl = function(item) {
   var type = item.info.type;
   var tag = item.info.tagName.toLowerCase();
   var selector;
-  if ((type == "submit" || type == "button") && item.info.value)
+  if (item.info.id) {
+    selector = tag+'#'+item.info.id;
+  } else if ((type == "submit" || type == "button") && item.info.value) {
     selector = tag+'[type='+type+'][value='+this.pyrepr(item.info.value)+']';
-  else if (item.info.name)
-  selector = tag+'[name='+this.pyrepr(item.info.name)+']';
-  else if (item.info.id)
-  selector = tag+'#'+item.info.id;
-  else
-  selector = item.info.selector;
-
+  } else if (item.info.name) {
+    selector = tag+'[name='+this.pyrepr(item.info.name)+']';
+  } else {
+    selector = item.info.selector;
+  }
   return selector;
 }
   
@@ -319,17 +321,13 @@ TestCafeRenderer.prototype.mousedrag = function(item) {
     this.stmt('});');
   }
 }
+
 TestCafeRenderer.prototype.click = function(item) {
   var tag = item.info.tagName.toLowerCase();
 
   var selector;
   if (tag == 'a') {
-    var xpath_selector = this.getLinkXPath(item);
-    if(xpath_selector) {
-      selector = 'x("//a['+xpath_selector+']")';
-    } else {
-      selector = item.info.selector;
-    }
+    selector = '"' + tag + item.info.selector + '"';
   } else if (tag == 'input' || tag == 'button') {
     selector = this.getFormSelector(item) + this.getControl(item);
     selector = '"' + selector + '"';
@@ -338,10 +336,25 @@ TestCafeRenderer.prototype.click = function(item) {
   }
 
   if(this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
-  	this.stmt('.click('+ selector + ', {offsetX: '+ item.x + ', offsetY: '+ item.y +'})', 2);
+    this.stmt('.click(Selector('+ selector + '), {offsetX: '+ item.x + ', offsetY: '+ item.y +'})', 2);
   } else {
-    this.stmt('.click('+ selector + ')', 2);
+    this.stmt('.click(Selector('+ selector + '))', 2);
   }
+}
+
+TestCafeRenderer.prototype.change = function(item) {
+  var tag = item.info.tagName.toLowerCase();
+  if (tag == 'select' && item.info.type == 'select-one') {
+    var selector = '"' + tag + item.info.selector + '"';
+    this.stmt('.click(Selector('+ selector + '))', 2);
+    this.stmt('.click(Selector('+ selector + ').find("option").withExactText("' + item.info.value + '"))', 2);
+  }
+}
+
+TestCafeRenderer.prototype.mouseover = function(item) {
+  var tag = item.info.tagName.toLowerCase();
+  var selector = '"' + tag + this.getControl(item) + '"';
+  this.stmt('.hover(Selector('+ selector + '))', 2);
 }
 
 TestCafeRenderer.prototype.getFormSelector = function(item) {
@@ -360,7 +373,7 @@ TestCafeRenderer.prototype.getFormSelector = function(item) {
 
 TestCafeRenderer.prototype.keypress = function(item) {
   var text = item.text.replace('\n','').replace('\r', '\\r');
-  this.stmt('.typeText("' + this.getControl(item) + '", "' + text + '")', 2);
+  this.stmt('.typeText(Selector("' + this.getControl(item) + '"), "' + text + '", {replace: true})', 2);
 }
 
 TestCafeRenderer.prototype.submit = function(item) {

@@ -295,6 +295,7 @@ TestRecorder.EventTypes.MouseUp = 20;
 TestRecorder.EventTypes.MouseDrag = 21;
 TestRecorder.EventTypes.MouseDrop = 22;
 TestRecorder.EventTypes.KeyPress = 23;
+TestRecorder.EventTypes.MouseOver = 24;
 
 TestRecorder.ElementInfo = function(element) {
     this.action = element.action;
@@ -818,7 +819,7 @@ TestRecorder.Recorder.prototype.start = function() {
     this.captureEvents();
 
     // OVERRIDE stopPropagation
-    var actualCode = '(' + function() {
+    /*var actualCode = '(' + function() {
         var overloadStopPropagation = Event.prototype.stopPropagation;
         Event.prototype.stopPropagation = function(){
             console.log(this);
@@ -828,7 +829,7 @@ TestRecorder.Recorder.prototype.start = function() {
     var script = document.createElement('script');
     script.textContent = actualCode;
     (document.head||document.documentElement).appendChild(script);
-    script.parentNode.removeChild(script);
+    script.parentNode.removeChild(script);*/
     
     this.active = true;
     this.log("recorder started");
@@ -860,6 +861,7 @@ TestRecorder.Recorder.prototype.captureEvents = function() {
     TestRecorder.Browser.captureEvent(wnd, "contextmenu", this.oncontextmenu);
     TestRecorder.Browser.captureEvent(wnd, "drag", this.ondrag);
     TestRecorder.Browser.captureEvent(wnd, "mousedown", this.onmousedown);
+    TestRecorder.Browser.captureEvent(wnd, "mouseover", this.onmouseover);
     TestRecorder.Browser.captureEvent(wnd, "mouseup", this.onmouseup);
     TestRecorder.Browser.captureEvent(wnd, "click", this.onclick);
     TestRecorder.Browser.captureEvent(wnd, "change", this.onchange);
@@ -873,6 +875,7 @@ TestRecorder.Recorder.prototype.releaseEvents = function() {
     TestRecorder.Browser.releaseEvent(wnd, "contextmenu", this.oncontextmenu);
     TestRecorder.Browser.releaseEvent(wnd, "drag", this.ondrag);
     TestRecorder.Browser.releaseEvent(wnd, "mousedown", this.onmousedown);
+    TestRecorder.Browser.releaseEvent(wnd, "mouseover", this.onmouseover);
     TestRecorder.Browser.releaseEvent(wnd, "mouseup", this.onmouseup);
     TestRecorder.Browser.releaseEvent(wnd, "click", this.onclick);
     TestRecorder.Browser.releaseEvent(wnd, "change", this.onchange);
@@ -986,6 +989,7 @@ TestRecorder.Recorder.prototype.ondrag = function(e) {
                     TestRecorder.EventTypes.MouseDrag, e.target(), e.posX(), e.posY()
             ));
 }
+
 TestRecorder.Recorder.prototype.onmousedown = function(e) {
     if(!contextmenu.visible) {
         var e = new TestRecorder.Event(e);
@@ -997,6 +1001,19 @@ TestRecorder.Recorder.prototype.onmousedown = function(e) {
         }
     }
 }
+
+TestRecorder.Recorder.prototype.onmouseover = function(e) {
+    if(!contextmenu.visible) {
+        var e = new TestRecorder.Event(e);
+        if (e.target().className == "hov") {
+            recorder.testcase.append(
+                new TestRecorder.MouseEvent(
+                        TestRecorder.EventTypes.MouseOver, e.target(), e.posX(), e.posY()
+                ));
+        }
+    }
+}
+
 TestRecorder.Recorder.prototype.onmouseup = function(e) {
     if(!contextmenu.visible) {
         var e = new TestRecorder.Event(e);
