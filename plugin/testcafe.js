@@ -178,7 +178,7 @@ TestCafeRenderer.prototype.render = function(with_xy, download) {
     }
     if(item.type==etypes.MouseUp && last_down) {
       if(last_down.x == item.x && last_down.y == item.y) {
-        //模拟点击操作(hov点击chrome不能获取事件)
+        //妯℃嫙鐐瑰嚮鎿嶄綔(hov鐐瑰嚮chrome涓嶈兘鑾峰彇浜嬩欢)
         this[this.dispatch[etypes.Click]](item);
       } else {
         item.before = last_down;
