@@ -32,6 +32,7 @@ EventTypes.MouseDrag = 21;
 EventTypes.MouseDrop = 22;
 EventTypes.KeyPress = 23;
 EventTypes.MouseOver = 24;
+EventTypes.DoubleClick = 25;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -140,6 +141,7 @@ d[EventTypes.MouseUp] = "mouseup"; */
 d[EventTypes.MouseDrag] = "mousedrag";
 d[EventTypes.KeyPress] = "keypress";
 d[EventTypes.MouseOver] = "mouseover";
+d[EventTypes.DoubleClick] = "doubleclick";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -178,8 +180,20 @@ TestCafeRenderer.prototype.render = function(with_xy, download) {
     }
     if(item.type==etypes.MouseUp && last_down) {
       if(last_down.x == item.x && last_down.y == item.y) {
-        //模拟点击操作(hov点击chrome不能获取事件)
-        this[this.dispatch[etypes.Click]](item);
+        //MouseDown
+        //MouseUp<-
+        //Click
+        //MouseDown
+        //MouseUp<-
+        //Click
+        //DoubleClick
+        if ((this.items[i+5] && this.items[i+5].type == etypes.DoubleClick && this.items[i+5].x == item.x && this.items[i+5].y == item.y) ||
+            (this.items[i+2] && this.items[i+2].type == etypes.DoubleClick && this.items[i+2].x == item.x && this.items[i+2].y == item.y)) {
+          //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
+        } else {
+          //Click情况，根据本次MouseDown/MouseUp构建Click，同时滤过接下来一个Click
+          this[this.dispatch[etypes.Click]](item);
+        }
       } else {
         item.before = last_down;
         this[this.dispatch[etypes.MouseDrag]](item);
@@ -222,12 +236,15 @@ TestCafeRenderer.prototype.writeHeader = function(download) {
     this.space();
   }
   this.stmt("import { Selector, t } from 'testcafe';", 0);
+  this.space();
   this.stmt("fixture `fixture demo`", 0);
 }
+
 TestCafeRenderer.prototype.writeFooter = function() {
-    this.space();
-    this.stmt("});", 0);
-  }
+  this.space();
+  this.stmt("});", 0);
+}
+
 TestCafeRenderer.prototype.rewriteUrl = function(url) {
   return url;
 }
@@ -291,7 +308,7 @@ TestCafeRenderer.prototype.getControlXPath = function(item) {
   else if (item.info.name)
     way = '@name=' + this.pyrepr(item.info.name);
   else if (item.info.id)
-  way = '@id=' + this.pyrepr(item.info.id);
+    way = '@id=' + this.pyrepr(item.info.id);
   else
     way = 'TODO';
 
@@ -342,6 +359,26 @@ TestCafeRenderer.prototype.click = function(item) {
   }
 }
 
+TestCafeRenderer.prototype.doubleclick = function(item) {
+  var tag = item.info.tagName.toLowerCase();
+
+  var selector;
+  if (tag == 'a') {
+    selector = '"' + tag + item.info.selector + '"';
+  } else if (tag == 'input' || tag == 'button') {
+    selector = this.getFormSelector(item) + this.getControl(item);
+    selector = '"' + selector + '"';
+  } else {
+    selector = '"' + item.info.selector + '"';
+  }
+
+  if(this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
+    this.stmt('.doubleClick(Selector('+ selector + '), {offsetX: '+ item.x + ', offsetY: '+ item.y +'})', 2);
+  } else {
+    this.stmt('.doubleClick(Selector('+ selector + '))', 2);
+  }
+}
+
 TestCafeRenderer.prototype.change = function(item) {
   var tag = item.info.tagName.toLowerCase();
   if (tag == 'select' && item.info.type == 'select-one') {
@@ -352,8 +389,7 @@ TestCafeRenderer.prototype.change = function(item) {
 }
 
 TestCafeRenderer.prototype.mouseover = function(item) {
-  var tag = item.info.tagName.toLowerCase();
-  var selector = '"' + tag + this.getControl(item) + '"';
+  var selector = '"' + this.getControl(item) + '"';
   this.stmt('.hover(Selector('+ selector + '))', 2);
 }
 

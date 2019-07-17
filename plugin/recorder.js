@@ -296,6 +296,7 @@ TestRecorder.EventTypes.MouseDrag = 21;
 TestRecorder.EventTypes.MouseDrop = 22;
 TestRecorder.EventTypes.KeyPress = 23;
 TestRecorder.EventTypes.MouseOver = 24;
+TestRecorder.EventTypes.DoubleClick = 25;
 
 TestRecorder.ElementInfo = function(element) {
     this.action = element.action;
@@ -864,6 +865,7 @@ TestRecorder.Recorder.prototype.captureEvents = function() {
     TestRecorder.Browser.captureEvent(wnd, "mouseover", this.onmouseover);
     TestRecorder.Browser.captureEvent(wnd, "mouseup", this.onmouseup);
     TestRecorder.Browser.captureEvent(wnd, "click", this.onclick);
+    TestRecorder.Browser.captureEvent(wnd, "dblclick", this.ondoubleclick);
     TestRecorder.Browser.captureEvent(wnd, "change", this.onchange);
     TestRecorder.Browser.captureEvent(wnd, "keypress", this.onkeypress);
     TestRecorder.Browser.captureEvent(wnd, "select", this.onselect);
@@ -878,13 +880,12 @@ TestRecorder.Recorder.prototype.releaseEvents = function() {
     TestRecorder.Browser.releaseEvent(wnd, "mouseover", this.onmouseover);
     TestRecorder.Browser.releaseEvent(wnd, "mouseup", this.onmouseup);
     TestRecorder.Browser.releaseEvent(wnd, "click", this.onclick);
+    TestRecorder.Browser.releaseEvent(wnd, "dblclick", this.ondoubleclick);
     TestRecorder.Browser.releaseEvent(wnd, "change", this.onchange);
     TestRecorder.Browser.releaseEvent(wnd, "keypress", this.onkeypress);
     TestRecorder.Browser.releaseEvent(wnd, "select", this.onselect);
     TestRecorder.Browser.releaseEvent(wnd, "submit", this.onsubmit);
 }
-
-
 
 TestRecorder.Recorder.prototype.clickaction = function(e) {
     // This method is called by our low-level event handler when the mouse 
@@ -897,14 +898,29 @@ TestRecorder.Recorder.prototype.clickaction = function(e) {
     if (!contextmenu.visible) {
         var et = TestRecorder.EventTypes;
         var t = e.target();
-        if (t.href || (t.type && t.type == "submit") || 
-                (t.type && t.type == "submit")) {
+        if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "submit")) {
+          this.testcase.append(new TestRecorder.ElementEvent(et.Click,e.target()));
+        } else {
+          this.testcase.append(new TestRecorder.MouseEvent(et.Click, e.target(), e.posX(), e.posY()));
+        }
+    }
+}
+
+TestRecorder.Recorder.prototype.doubleclickaction = function(e) {
+    // This method is called by our low-level event handler when the mouse 
+    // is clicked in normal mode. Its job is decide whether the click is
+    // something we care about. If so, we record the event in the test case.
+    //
+    // If the context menu is visible, then the click is either over the 
+    // menu (selecting a check) or out of the menu (cancelling it) so we 
+    // always discard clicks that happen when the menu is visible.
+    if (!contextmenu.visible) {
+        var et = TestRecorder.EventTypes;
+        var t = e.target();
+        if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "submit")) {
             this.testcase.append(new TestRecorder.ElementEvent(et.Click,e.target()));
         } else {
-            recorder.testcase.append(
-                    new TestRecorder.MouseEvent(
-                            TestRecorder.EventTypes.Click, e.target(), e.posX(), e.posY()
-                    ));
+            this.testcase.append(new TestRecorder.MouseEvent(et.DoubleClick, e.target(), e.posX(), e.posY()));
         }
     }
 }
@@ -1048,6 +1064,18 @@ TestRecorder.Recorder.prototype.onclick = function(e) {
         return true;
     } else if (e.button() == TestRecorder.Event.LeftButton) {
         recorder.clickaction(e);
+        return true;
+    }
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+}
+
+TestRecorder.Recorder.prototype.ondoubleclick = function(e) {
+    var e = new TestRecorder.Event(e);
+
+    if (e.button() == TestRecorder.Event.LeftButton) {
+        recorder.doubleclickaction(e);
         return true;
     }
     e.stopPropagation();
