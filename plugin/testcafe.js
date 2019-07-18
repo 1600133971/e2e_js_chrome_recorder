@@ -157,7 +157,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
   var etypes = EventTypes;
   this.document.open();
   if (!download) {
-    //this.document.writeln('<button id="casperbox-button">Run it on Casperbox</button>');
+    this.document.writeln('<button id="run-button">Run</button>');
     this.document.write("<" + "pre" + ">");
   }
   this.writeHeader(download);
@@ -379,9 +379,16 @@ TestCafeRenderer.prototype.rightclick = function (item) {
 TestCafeRenderer.prototype.change = function (item) {
   var tag = item.info.tagName.toLowerCase();
 
+  //点击后选择option
   if (tag == 'select' && item.info.type == 'select-one') {
     var selector = '"' + this.getControl(item) + '"';
     this.stmt('.click(Selector(' + selector + ').find("option").withExactText("' + item.info.value + '"))', 2);
+  }
+
+  //点击后选择text
+  if (tag == 'input' && item.info.type == 'text') {
+    var selector = '"' + this.getControl(item) + '"';
+    this.stmt('.typeText(Selector(' + selector + '), "' + item.info.value + '", {replace: true})', 2);
   }
 }
 
@@ -532,6 +539,21 @@ TestCafeRenderer.prototype.waitAndTestSelector = function (selector) {
   this.stmt('});');
 }
 
+TestCafeRenderer.prototype.postToCasperbox = function () {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'https://api.casperbox.com/scripts', true);
+  xhr.onload = function () {
+    if (this.status == 202) {
+      response = JSON.parse(this.responseText);
+      window.open('https://ide.casperbox.com/?' + response.id);
+    } else {
+      alert("Error " + this.status);
+    }
+
+  };
+  xhr.send(document.getElementsByTagName('pre')[0].innerText);
+}
+
 var dt = new TestCafeRenderer(document);
 window.onload = function onpageload() {
   var with_xy = false,
@@ -547,5 +569,11 @@ window.onload = function onpageload() {
           dt.download(false, content);
         } : false
     );
+    if (!download) {
+      document.getElementById("run-button").onclick = function () {
+        //dt.postToCasperbox();
+        alert("test");
+      };
+    }
   });
 };

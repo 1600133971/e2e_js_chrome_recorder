@@ -1017,7 +1017,7 @@ TestRecorder.Recorder.prototype.onmouseup = function (e) {
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
 
-    //Êó±ê×ó¼üµ¯Æğ
+    //é¼ æ ‡å·¦é”®å¼¹èµ·
     if (e.button() == TestRecorder.Event.LeftButton) {
       recorder.testcase.append(
         new TestRecorder.MouseEvent(
@@ -1025,7 +1025,7 @@ TestRecorder.Recorder.prototype.onmouseup = function (e) {
         ));
     }
 
-    //Êó±êÓÒ¼üµ¯Æğ
+    //é¼ æ ‡å³é”®å¼¹èµ·
     if (e.button() == TestRecorder.Event.RightButton) {
       recorder.testcase.append(
         new TestRecorder.MouseEvent(
@@ -1080,7 +1080,7 @@ TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
 TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
   var e = new TestRecorder.Event(e);
 
-  //ÓÒ¼üÆÁ±ÎÔ­ÓĞ²Ëµ¥£¬Ò²²»ÏÔÊ¾¶¨ÖÆ²Ëµ¥£¬¶¨ÖÆ²Ëµ¥shift+click¼¤»î
+  //å³é”®å±è”½åŸæœ‰èœå•ï¼Œä¹Ÿä¸æ˜¾ç¤ºå®šåˆ¶èœå•ï¼Œå®šåˆ¶èœå•shift+clickæ¿€æ´»
   //recorder.check(e);
 
   e.stopPropagation();
@@ -1091,12 +1091,12 @@ TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
 TestRecorder.Recorder.prototype.onkeypress = function (e) {
   var e = new TestRecorder.Event(e);
 
-  //¶¯×÷Î´Öª
+  //åŠ¨ä½œæœªçŸ¥
   if (e.shiftkey() && (e.keychar() == 'C')) {
     // TODO show comment box here
   }
 
-  //shift+S¼¤»î½ØÆÁÊÂ¼ş
+  //shift+Sæ¿€æ´»æˆªå±äº‹ä»¶
   if (e.shiftkey() && (e.keychar() == 'S')) {
     recorder.testcase.append(new TestRecorder.ScreenShotEvent());
     e.stopPropagation();
@@ -1106,11 +1106,11 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
 
   var last = recorder.testcase.peek();
   if (last.type == TestRecorder.EventTypes.KeyPress) {
-    //Ç°Ò»¸öÊÂ¼şÊÇKeyPress£¬Ôò¸üĞÂtext×·¼ÓÒ»¸ö×Ö·û
+    //å‰ä¸€ä¸ªäº‹ä»¶æ˜¯KeyPressï¼Œåˆ™æ›´æ–°textè¿½åŠ ä¸€ä¸ªå­—ç¬¦
     last.text = last.text + e.keychar();
     recorder.testcase.poke(last);
   } else {
-    //Ç°Ò»¸öÊÂ¼ş²»ÊÇKeyPress£¬ÊÇĞÂµÄKeyPressÊÂ¼ş
+    //å‰ä¸€ä¸ªäº‹ä»¶ä¸æ˜¯KeyPressï¼Œæ˜¯æ–°çš„KeyPressäº‹ä»¶
     recorder.testcase.append(
       new TestRecorder.KeyEvent(e.target(), e.keychar())
     );
@@ -1123,7 +1123,7 @@ TestRecorder.Recorder.prototype.onkeyup = function (e) {
 
   var last = recorder.testcase.peek();
   if (last.type == TestRecorder.EventTypes.KeyPress) {
-    //Ç°Ò»¸ö¶¯×÷ÊÇKeyPress£¬±¾´Î¶¯×÷µã»÷Backspace¼ü£¬»ØÍË×îºóÒ»¸ö×Ö·û£¬¸üĞÂ×î½üµÄÊÂ¼ş
+    //å‰ä¸€ä¸ªåŠ¨ä½œæ˜¯KeyPressï¼Œæœ¬æ¬¡åŠ¨ä½œç‚¹å‡»Backspaceé”®ï¼Œå›é€€æœ€åä¸€ä¸ªå­—ç¬¦ï¼Œæ›´æ–°æœ€è¿‘çš„äº‹ä»¶
     if (e.keycode() == 8 /*Backspace*/) {
       last.text = last.text.substring(0, last.text.length - 1);
       recorder.testcase.poke(last);
