@@ -33,6 +33,7 @@ EventTypes.MouseDrop = 22;
 EventTypes.KeyPress = 23;
 EventTypes.MouseOver = 24;
 EventTypes.DoubleClick = 25;
+EventTypes.RightClick = 26;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -145,6 +146,7 @@ d[EventTypes.MouseDrag] = "mousedrag";
 d[EventTypes.KeyPress] = "keypress";
 d[EventTypes.MouseOver] = "mouseover";
 d[EventTypes.DoubleClick] = "doubleclick";
+d[EventTypes.RightClick] = "rightclick";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -344,17 +346,7 @@ TestCafeRenderer.prototype.mousedrag = function (item) {
 
 TestCafeRenderer.prototype.click = function (item) {
   var tag = item.info.tagName.toLowerCase();
-
-  var selector;
-  if (tag == 'a') {
-    selector = '"' + tag + item.info.selector + '"';
-  } else if (tag == 'input' || tag == 'button') {
-    selector = this.getFormSelector(item) + this.getControl(item);
-    selector = '"' + selector + '"';
-  } else {
-    selector = '"' + item.info.selector + '"';
-  }
-
+  var selector = '"' + this.getControl(item) + '"';
   if (this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
     this.stmt('.click(Selector(' + selector + '), {offsetX: ' + item.x + ', offsetY: ' + item.y + '})', 2);
   } else {
@@ -364,16 +356,7 @@ TestCafeRenderer.prototype.click = function (item) {
 
 TestCafeRenderer.prototype.doubleclick = function (item) {
   var tag = item.info.tagName.toLowerCase();
-
-  var selector;
-  if (tag == 'a') {
-    selector = '"' + tag + item.info.selector + '"';
-  } else if (tag == 'input' || tag == 'button') {
-    selector = this.getFormSelector(item) + this.getControl(item);
-    selector = '"' + selector + '"';
-  } else {
-    selector = '"' + item.info.selector + '"';
-  }
+  var selector = '"' + this.getControl(item) + '"';
 
   if (this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
     this.stmt('.doubleClick(Selector(' + selector + '), {offsetX: ' + item.x + ', offsetY: ' + item.y + '})', 2);
@@ -382,11 +365,22 @@ TestCafeRenderer.prototype.doubleclick = function (item) {
   }
 }
 
+TestCafeRenderer.prototype.rightclick = function (item) {
+  var tag = item.info.tagName.toLowerCase();
+  var selector = '"' + this.getControl(item) + '"';
+
+  if (this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
+    this.stmt('.rightClick(Selector(' + selector + '), {offsetX: ' + item.x + ', offsetY: ' + item.y + '})', 2);
+  } else {
+    this.stmt('.rightClick(Selector(' + selector + '))', 2);
+  }
+}
+
 TestCafeRenderer.prototype.change = function (item) {
   var tag = item.info.tagName.toLowerCase();
+
   if (tag == 'select' && item.info.type == 'select-one') {
-    var selector = '"' + tag + item.info.selector + '"';
-    this.stmt('.click(Selector(' + selector + '))', 2);
+    var selector = '"' + this.getControl(item) + '"';
     this.stmt('.click(Selector(' + selector + ').find("option").withExactText("' + item.info.value + '"))', 2);
   }
 }
@@ -425,20 +419,18 @@ TestCafeRenderer.prototype.screenShot = function (item) {
   // wait 1 second is not the ideal solution, but will be enough most
   // part of time. For slow pages, an assert before capture will make
   // sure evrything is properly loaded before screenshot.
-  this.stmt('casper.wait(1000);');
-  this.stmt('casper.then(function() {');
-  this.stmt('    this.captureSelector("screenshot' + this.screen_id + '.png", "html");');
-  this.stmt('});');
+  this.stmt('.wait(1000)', 2);
+  this.stmt('.takeScreenshot("screenshot' + this.screen_id + '.png")', 2);
   this.screen_id = this.screen_id + 1;
 }
 
 TestCafeRenderer.prototype.comment = function (item) {
   var lines = item.text.split('\n');
-  this.stmt('casper.then(function() {');
+  this.stmt('/*', 2);
   for (var i = 0; i < lines.length; i++) {
-    this.stmt('    test.comment("' + lines[i] + '");');
+    this.stmt(lines[i], 4);
   }
-  this.stmt('});');
+  this.stmt('*/', 2);
 }
 
 TestCafeRenderer.prototype.checkPageTitle = function (item) {

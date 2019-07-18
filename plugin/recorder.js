@@ -293,6 +293,7 @@ TestRecorder.EventTypes.MouseDrop = 22;
 TestRecorder.EventTypes.KeyPress = 23;
 TestRecorder.EventTypes.MouseOver = 24;
 TestRecorder.EventTypes.DoubleClick = 25;
+TestRecorder.EventTypes.RightClick = 26;
 
 TestRecorder.ElementInfo = function (element) {
   this.action = element.action;
@@ -522,8 +523,7 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
   }
   else if (selected && (selected != "")) {
     this.selected = recorder.strip(selected);
-    menu.appendChild(this.item("Check Text Appears On Page",
-      this.checkTextPresent));
+    menu.appendChild(this.item("Check Text Appears On Page", this.checkTextPresent));
   }
   else if (t.href) {
     menu.appendChild(this.item("Check Link Text", this.checkText));
@@ -851,6 +851,7 @@ TestRecorder.Recorder.prototype.captureEvents = function () {
   TestRecorder.Browser.captureEvent(wnd, "keypress", this.onkeypress);
   TestRecorder.Browser.captureEvent(wnd, "select", this.onselect);
   TestRecorder.Browser.captureEvent(wnd, "submit", this.onsubmit);
+  TestRecorder.Browser.captureEvent(wnd, "keyup", this.onkeyup);
 }
 
 TestRecorder.Recorder.prototype.releaseEvents = function () {
@@ -866,6 +867,7 @@ TestRecorder.Recorder.prototype.releaseEvents = function () {
   TestRecorder.Browser.releaseEvent(wnd, "keypress", this.onkeypress);
   TestRecorder.Browser.releaseEvent(wnd, "select", this.onselect);
   TestRecorder.Browser.releaseEvent(wnd, "submit", this.onsubmit);
+  TestRecorder.Browser.releaseEvent(wnd, "keyup", this.onkeyup);
 }
 
 TestRecorder.Recorder.prototype.clickaction = function (e) {
@@ -1014,10 +1016,20 @@ TestRecorder.Recorder.prototype.onmouseover = function (e) {
 TestRecorder.Recorder.prototype.onmouseup = function (e) {
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
+
+    //鼠标左键弹起
     if (e.button() == TestRecorder.Event.LeftButton) {
       recorder.testcase.append(
         new TestRecorder.MouseEvent(
           TestRecorder.EventTypes.MouseUp, e.target(), e.posX(), e.posY()
+        ));
+    }
+
+    //鼠标右键弹起
+    if (e.button() == TestRecorder.Event.RightButton) {
+      recorder.testcase.append(
+        new TestRecorder.MouseEvent(
+          TestRecorder.EventTypes.RightClick, e.target(), e.posX(), e.posY()
         ));
     }
   }
@@ -1067,7 +1079,10 @@ TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
 
 TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
   var e = new TestRecorder.Event(e);
-  recorder.check(e);
+
+  //右键屏蔽原有菜单，也不显示定制菜单，定制菜单shift+click激活
+  //recorder.check(e);
+
   e.stopPropagation();
   e.preventDefault();
   return false;
@@ -1075,9 +1090,13 @@ TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
 
 TestRecorder.Recorder.prototype.onkeypress = function (e) {
   var e = new TestRecorder.Event(e);
+
+  //动作未知
   if (e.shiftkey() && (e.keychar() == 'C')) {
     // TODO show comment box here
   }
+
+  //shift+S激活截屏事件
   if (e.shiftkey() && (e.keychar() == 'S')) {
     recorder.testcase.append(new TestRecorder.ScreenShotEvent());
     e.stopPropagation();
@@ -1087,12 +1106,28 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
 
   var last = recorder.testcase.peek();
   if (last.type == TestRecorder.EventTypes.KeyPress) {
+    //前一个事件是KeyPress，则更新text追加一个字符
     last.text = last.text + e.keychar();
     recorder.testcase.poke(last);
   } else {
+    //前一个事件不是KeyPress，是新的KeyPress事件
     recorder.testcase.append(
       new TestRecorder.KeyEvent(e.target(), e.keychar())
     );
+  }
+  return true;
+}
+
+TestRecorder.Recorder.prototype.onkeyup = function (e) {
+  var e = new TestRecorder.Event(e);
+
+  var last = recorder.testcase.peek();
+  if (last.type == TestRecorder.EventTypes.KeyPress) {
+    //前一个动作是KeyPress，本次动作点击Backspace键，回退最后一个字符，更新最近的事件
+    if (e.keycode() == 8 /*Backspace*/) {
+      last.text = last.text.substring(0, last.text.length - 1);
+      recorder.testcase.poke(last);
+    }
   }
   return true;
 }
