@@ -294,6 +294,7 @@ TestRecorder.EventTypes.KeyPress = 23;
 TestRecorder.EventTypes.MouseOver = 24;
 TestRecorder.EventTypes.DoubleClick = 25;
 TestRecorder.EventTypes.RightClick = 26;
+TestRecorder.EventTypes.KeyDown = 27;
 
 TestRecorder.ElementInfo = function (element) {
   this.action = element.action;
@@ -555,7 +556,7 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
     menu.appendChild(this.item("Check Page Title", this.checkPageTitle));
     menu.appendChild(this.item("Screenshot", this.doScreenShot));
   }
-
+  menu.appendChild(this.item("Hover", this.hover));
   menu.appendChild(this.item("Cancel", this.cancel));
 
   b.insertBefore(menu, b.firstChild);
@@ -649,7 +650,7 @@ TestRecorder.ContextMenu.prototype.onmousedown = function (e) {
 TestRecorder.ContextMenu.prototype.record = function (o) {
   recorder.testcase.append(o);
   recorder.log(o.type);
-  contextmenu.hide();
+  //contextmenu.hide();
 }
 
 TestRecorder.ContextMenu.prototype.checkPageTitle = function () {
@@ -764,6 +765,13 @@ TestRecorder.ContextMenu.prototype.checkImgSrc = function () {
   contextmenu.record(e);
 }
 
+TestRecorder.ContextMenu.prototype.hover = function () {
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.MouseOver, t);
+  contextmenu.record(e);
+}
+
 TestRecorder.ContextMenu.prototype.cancel = function () {
   contextmenu.hide();
 }
@@ -851,7 +859,7 @@ TestRecorder.Recorder.prototype.captureEvents = function () {
   TestRecorder.Browser.captureEvent(wnd, "keypress", this.onkeypress);
   TestRecorder.Browser.captureEvent(wnd, "select", this.onselect);
   TestRecorder.Browser.captureEvent(wnd, "submit", this.onsubmit);
-  TestRecorder.Browser.captureEvent(wnd, "keyup", this.onkeyup);
+  TestRecorder.Browser.captureEvent(wnd, "keydown", this.onkeydown);
 }
 
 TestRecorder.Recorder.prototype.releaseEvents = function () {
@@ -867,7 +875,7 @@ TestRecorder.Recorder.prototype.releaseEvents = function () {
   TestRecorder.Browser.releaseEvent(wnd, "keypress", this.onkeypress);
   TestRecorder.Browser.releaseEvent(wnd, "select", this.onselect);
   TestRecorder.Browser.releaseEvent(wnd, "submit", this.onsubmit);
-  TestRecorder.Browser.releaseEvent(wnd, "keyup", this.onkeyup);
+  TestRecorder.Browser.releaseEvent(wnd, "keydown", this.onkeydown);
 }
 
 TestRecorder.Recorder.prototype.clickaction = function (e) {
@@ -886,6 +894,8 @@ TestRecorder.Recorder.prototype.clickaction = function (e) {
     } else {
       this.testcase.append(new TestRecorder.MouseEvent(et.Click, e.target(), e.posX(), e.posY()));
     }
+  } else {
+    contextmenu.hide();
   }
 }
 
@@ -1024,14 +1034,6 @@ TestRecorder.Recorder.prototype.onmouseup = function (e) {
           TestRecorder.EventTypes.MouseUp, e.target(), e.posX(), e.posY()
         ));
     }
-
-    //鼠标右键弹起
-    if (e.button() == TestRecorder.Event.RightButton) {
-      recorder.testcase.append(
-        new TestRecorder.MouseEvent(
-          TestRecorder.EventTypes.RightClick, e.target(), e.posX(), e.posY()
-        ));
-    }
   }
 }
 
@@ -1046,10 +1048,12 @@ TestRecorder.Recorder.prototype.onmouseup = function (e) {
 TestRecorder.Recorder.prototype.onclick = function (e) {
   var e = new TestRecorder.Event(e);
 
+  //shift+click模拟鼠标右击
   if (e.shiftkey()) {
-    recorder.check(e);
-    e.stopPropagation();
-    e.preventDefault();
+    recorder.testcase.append(
+      new TestRecorder.MouseEvent(
+        TestRecorder.EventTypes.RightClick, e.target(), e.posX(), e.posY()
+      ));
     return false;
   }
 
@@ -1080,8 +1084,8 @@ TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
 TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
   var e = new TestRecorder.Event(e);
 
-  //右键屏蔽原有菜单，也不显示定制菜单，定制菜单shift+click激活
-  //recorder.check(e);
+  //右键屏蔽原有菜单，显示定制菜单，右击由shift+click激活
+  recorder.check(e);
 
   e.stopPropagation();
   e.preventDefault();
@@ -1118,7 +1122,7 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
   return true;
 }
 
-TestRecorder.Recorder.prototype.onkeyup = function (e) {
+TestRecorder.Recorder.prototype.onkeydown = function (e) {
   var e = new TestRecorder.Event(e);
 
   var last = recorder.testcase.peek();

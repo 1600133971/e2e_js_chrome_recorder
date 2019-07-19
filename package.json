@@ -1,0 +1,12 @@
+{
+  "name": "e2e_js_chrome_recorder",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "e2e_js_chrome_recorder",
+  "author": "1600133971",
+  "scripts": {
+    "web": "cd web & node server.js 8085"
+  },
+  "dependencies": {
+  }
+}

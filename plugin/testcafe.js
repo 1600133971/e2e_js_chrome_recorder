@@ -34,6 +34,7 @@ EventTypes.KeyPress = 23;
 EventTypes.MouseOver = 24;
 EventTypes.DoubleClick = 25;
 EventTypes.RightClick = 26;
+EventTypes.KeyDown = 27;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -195,7 +196,14 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
         if ((this.items[i + 5] && this.items[i + 5].type == etypes.DoubleClick && this.items[i + 5].x == item.x && this.items[i + 5].y == item.y) ||
           (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
-        } else {
+        }
+        //MouseDown
+        //MouseUp<-
+        //RightClick
+        else if (this.items[i + 1] && this.items[i + 1].type == etypes.RightClick && this.items[i + 1].x == item.x && this.items[i + 1].y == item.y) {
+          //RightClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
+        }
+        else {
           //Click情况，根据本次MouseDown/MouseUp构建Click，同时滤过接下来一个Click
           this[this.dispatch[etypes.Click]](item);
         }
@@ -335,59 +343,41 @@ TestCafeRenderer.prototype.getLinkXPath = function (item) {
 }
 
 TestCafeRenderer.prototype.mousedrag = function (item) {
-  if (this.with_xy) {
-    this.stmt('casper.then(function() {');
-    this.stmt('    this.mouse.down(' + item.before.x + ', ' + item.before.y + ');');
-    this.stmt('    this.mouse.move(' + item.x + ', ' + item.y + ');');
-    this.stmt('    this.mouse.up(' + item.x + ', ' + item.y + ');');
-    this.stmt('});');
-  }
+  var selector = '"' + this.getControl(item) + '"';
+  var dragOffsetX = item.x - item.before.x;
+  var dragOffsetY = item.y - item.before.y;
+  this.stmt('.drag(Selector(' + selector + '), ' + dragOffsetX.toString() +', ' + dragOffsetY.toString() + ')', 2);
 }
 
 TestCafeRenderer.prototype.click = function (item) {
   var tag = item.info.tagName.toLowerCase();
   var selector = '"' + this.getControl(item) + '"';
-  if (this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
-    this.stmt('.click(Selector(' + selector + '), {offsetX: ' + item.x + ', offsetY: ' + item.y + '})', 2);
-  } else {
-    this.stmt('.click(Selector(' + selector + '))', 2);
-  }
+  this.stmt('.click(Selector(' + selector + '))', 2);
 }
 
 TestCafeRenderer.prototype.doubleclick = function (item) {
   var tag = item.info.tagName.toLowerCase();
   var selector = '"' + this.getControl(item) + '"';
-
-  if (this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
-    this.stmt('.doubleClick(Selector(' + selector + '), {offsetX: ' + item.x + ', offsetY: ' + item.y + '})', 2);
-  } else {
-    this.stmt('.doubleClick(Selector(' + selector + '))', 2);
-  }
+  this.stmt('.doubleClick(Selector(' + selector + '))', 2);
 }
 
 TestCafeRenderer.prototype.rightclick = function (item) {
   var tag = item.info.tagName.toLowerCase();
   var selector = '"' + this.getControl(item) + '"';
-
-  if (this.with_xy && !(tag == 'a' || tag == 'input' || tag == 'button')) {
-    this.stmt('.rightClick(Selector(' + selector + '), {offsetX: ' + item.x + ', offsetY: ' + item.y + '})', 2);
-  } else {
-    this.stmt('.rightClick(Selector(' + selector + '))', 2);
-  }
+  this.stmt('.rightClick(Selector(' + selector + '))', 2);
 }
 
 TestCafeRenderer.prototype.change = function (item) {
   var tag = item.info.tagName.toLowerCase();
+  var selector = '"' + this.getControl(item) + '"';
 
   //点击后选择option
   if (tag == 'select' && item.info.type == 'select-one') {
-    var selector = '"' + this.getControl(item) + '"';
     this.stmt('.click(Selector(' + selector + ').find("option").withExactText("' + item.info.value + '"))', 2);
   }
 
   //点击后选择text
   if (tag == 'input' && item.info.type == 'text') {
-    var selector = '"' + this.getControl(item) + '"';
     this.stmt('.typeText(Selector(' + selector + '), "' + item.info.value + '", {replace: true})', 2);
   }
 }
@@ -419,7 +409,7 @@ TestCafeRenderer.prototype.keypress = function (item) {
 TestCafeRenderer.prototype.submit = function (item) {
   // the submit has been called somehow (user, or script)
   // so no need to trigger it.
-  this.stmt("/* submit form */");
+  this.stmt("/* submit form */", 2);
 }
 
 TestCafeRenderer.prototype.screenShot = function (item) {
