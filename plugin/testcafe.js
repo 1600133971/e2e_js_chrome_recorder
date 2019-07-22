@@ -34,7 +34,6 @@ EventTypes.KeyPress = 23;
 EventTypes.MouseOver = 24;
 EventTypes.DoubleClick = 25;
 EventTypes.RightClick = 26;
-EventTypes.KeyDown = 27;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -243,6 +242,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
 TestCafeRenderer.prototype.writeHeader = function (download) {
   var date = new Date();
   if (!download) {
+    this.space();
     this.text("//==============================================================================", 0);
     this.text("// TestCafe generated " + date + " ", 0);
     this.text("//==============================================================================", 0);
@@ -529,17 +529,16 @@ TestCafeRenderer.prototype.waitAndTestSelector = function (selector) {
   this.stmt('});');
 }
 
-TestCafeRenderer.prototype.postToCasperbox = function () {
+TestCafeRenderer.prototype.postToServer = function () {
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'https://api.casperbox.com/scripts', true);
+  xhr.open('POST', 'http://127.0.0.1:8086/scripts', true);
   xhr.onload = function () {
-    if (this.status == 202) {
-      response = JSON.parse(this.responseText);
-      window.open('https://ide.casperbox.com/?' + response.id);
+    if (this.status == 200) {
+      //response = JSON.parse(this.responseText);
+      //window.open('https://ide.casperbox.com/?' + response.id);
     } else {
       alert("Error " + this.status);
     }
-
   };
   xhr.send(document.getElementsByTagName('pre')[0].innerText);
 }
@@ -561,8 +560,7 @@ window.onload = function onpageload() {
     );
     if (!download) {
       document.getElementById("run-button").onclick = function () {
-        //dt.postToCasperbox();
-        alert("test");
+        dt.postToServer();
       };
     }
   });

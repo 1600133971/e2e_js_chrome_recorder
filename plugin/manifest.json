@@ -8,7 +8,7 @@
   "browser_action": {
     "default_icon": "makina-icon.png",
     "default_popup": "control.html",
-    "default_title": "CasperJS test recorder"
+    "default_title": "TestCafeJS test recorder"
   },
   "background": {
     "scripts": ["background.js"]

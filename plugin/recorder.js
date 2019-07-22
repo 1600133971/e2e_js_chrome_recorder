@@ -967,10 +967,16 @@ TestRecorder.Recorder.prototype.onpageload = function () {
 
 TestRecorder.Recorder.prototype.onchange = function (e) {
   var e = new TestRecorder.Event(e);
-  var et = TestRecorder.EventTypes;
-  var v = new TestRecorder.ElementEvent(et.Change, e.target());
-  recorder.testcase.append(v);
-  recorder.log("value changed: " + e.target().value);
+  var last = recorder.testcase.peek();
+  if (last.type && last.type == TestRecorder.EventTypes.Click) {
+    //前一个动作是Click，本次动作上报Change，触发typeText
+    var et = TestRecorder.EventTypes;
+    var v = new TestRecorder.ElementEvent(et.Change, e.target());
+    recorder.testcase.append(v);
+    recorder.log("value changed: " + e.target().value);
+  } else {
+    recorder.log("no need to value changed: " + e.target().value);
+  }
 }
 
 TestRecorder.Recorder.prototype.onselect = function (e) {
@@ -1126,7 +1132,7 @@ TestRecorder.Recorder.prototype.onkeydown = function (e) {
   var e = new TestRecorder.Event(e);
 
   var last = recorder.testcase.peek();
-  if (last.type == TestRecorder.EventTypes.KeyPress) {
+  if (last.type && last.type == TestRecorder.EventTypes.KeyPress) {
     //前一个动作是KeyPress，本次动作点击Backspace键，回退最后一个字符，更新最近的事件
     if (e.keycode() == 8 /*Backspace*/) {
       last.text = last.text.substring(0, last.text.length - 1);
