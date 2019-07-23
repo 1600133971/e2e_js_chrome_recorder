@@ -6,7 +6,8 @@
   "author": "1600133971",
   "scripts": {
     "web": "cd web & node server.js 8085",
-    "test": "testcafe chrome --reporter st ./test/test.js",
+    "test": "testcafe chrome ./test/test.js -e",
+    "live": "testcafe chrome ./test/test.js -L -e",
     "server": "cd server & node index.js"
   },
   "dependencies": {

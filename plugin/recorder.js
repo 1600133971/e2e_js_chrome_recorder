@@ -294,7 +294,7 @@ TestRecorder.EventTypes.KeyPress = 23;
 TestRecorder.EventTypes.MouseOver = 24;
 TestRecorder.EventTypes.DoubleClick = 25;
 TestRecorder.EventTypes.RightClick = 26;
-TestRecorder.EventTypes.KeyDown = 27;
+TestRecorder.EventTypes.PressKey = 27;
 
 TestRecorder.ElementInfo = function (element) {
   this.action = element.action;
@@ -1115,7 +1115,7 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
   }
 
   var last = recorder.testcase.peek();
-  if (last.type == TestRecorder.EventTypes.KeyPress) {
+  if (last.type && last.type == TestRecorder.EventTypes.KeyPress) {
     //前一个事件是KeyPress，则更新text追加一个字符
     last.text = last.text + e.keychar();
     recorder.testcase.poke(last);
@@ -1130,15 +1130,29 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
 
 TestRecorder.Recorder.prototype.onkeydown = function (e) {
   var e = new TestRecorder.Event(e);
+  var et = TestRecorder.EventTypes;
 
-  var last = recorder.testcase.peek();
-  if (last.type && last.type == TestRecorder.EventTypes.KeyPress) {
-    //前一个动作是KeyPress，本次动作点击Backspace键，回退最后一个字符，更新最近的事件
-    if (e.keycode() == 8 /*Backspace*/) {
-      last.text = last.text.substring(0, last.text.length - 1);
-      recorder.testcase.poke(last);
-    }
+  //点击Backspace键
+  if (e.keycode() == 9 /*Backspace*/) {
+    this.testcase.append(
+      new TestRecorder.ElementEvent(et.PressKey, e.target(), "backspace")
+    );
   }
+
+  //点击Tab键
+  if (e.keycode() == 9 /*Tab*/) {
+    this.testcase.append(
+      new TestRecorder.ElementEvent(et.PressKey, e.target(), "tab")
+    );
+  }
+
+  //点击Enter键
+  if (e.keycode() == 13 /*Enter*/) {
+    this.testcase.append(
+      new TestRecorder.ElementEvent(et.PressKey, e.target(), "enter")
+    );
+  }
+
   return true;
 }
 

@@ -34,6 +34,7 @@ EventTypes.KeyPress = 23;
 EventTypes.MouseOver = 24;
 EventTypes.DoubleClick = 25;
 EventTypes.RightClick = 26;
+EventTypes.PressKey = 27;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -147,6 +148,7 @@ d[EventTypes.KeyPress] = "keypress";
 d[EventTypes.MouseOver] = "mouseover";
 d[EventTypes.DoubleClick] = "doubleclick";
 d[EventTypes.RightClick] = "rightclick";
+d[EventTypes.PressKey] = "presskey";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -184,7 +186,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
       continue;
     }
     if (item.type == etypes.MouseUp && last_down) {
-      if (last_down.x == item.x && last_down.y == item.y) {
+      if (Math.abs(last_down.x - item.x) < 5 && Math.abs(last_down.y - item.y) < 5) {
         //MouseDown
         //MouseUp<-
         //Click
@@ -193,7 +195,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
         //Click
         //DoubleClick
         if ((this.items[i + 5] && this.items[i + 5].type == etypes.DoubleClick && this.items[i + 5].x == item.x && this.items[i + 5].y == item.y) ||
-          (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
+            (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         }
         //MouseDown
@@ -308,7 +310,7 @@ TestCafeRenderer.prototype.getControl = function (item) {
   } else if (item.info.name) {
     selector = tag + '[name=' + this.pyrepr(item.info.name) + ']';
   } else {
-    selector = item.info.selector;
+    selector = tag + item.info.selector;
   }
   return selector;
 }
@@ -346,25 +348,27 @@ TestCafeRenderer.prototype.mousedrag = function (item) {
   var selector = '"' + this.getControl(item) + '"';
   var dragOffsetX = item.x - item.before.x;
   var dragOffsetY = item.y - item.before.y;
-  this.stmt('.drag(Selector(' + selector + '), ' + dragOffsetX.toString() +', ' + dragOffsetY.toString() + ')', 2);
+  this.stmt('.drag(Selector(' + selector + '), ' + dragOffsetX.toString() + ', ' + dragOffsetY.toString() + ')', 2);
 }
 
 TestCafeRenderer.prototype.click = function (item) {
-  var tag = item.info.tagName.toLowerCase();
   var selector = '"' + this.getControl(item) + '"';
   this.stmt('.click(Selector(' + selector + '))', 2);
 }
 
 TestCafeRenderer.prototype.doubleclick = function (item) {
-  var tag = item.info.tagName.toLowerCase();
   var selector = '"' + this.getControl(item) + '"';
   this.stmt('.doubleClick(Selector(' + selector + '))', 2);
 }
 
 TestCafeRenderer.prototype.rightclick = function (item) {
-  var tag = item.info.tagName.toLowerCase();
   var selector = '"' + this.getControl(item) + '"';
   this.stmt('.rightClick(Selector(' + selector + '))', 2);
+}
+
+TestCafeRenderer.prototype.presskey = function (item) {
+  var selector = '"' + this.getControl(item) + '"';
+  this.stmt('.pressKey(Selector(' + selector + '), "' + item.info.value + '")', 2);
 }
 
 TestCafeRenderer.prototype.change = function (item) {
@@ -373,12 +377,26 @@ TestCafeRenderer.prototype.change = function (item) {
 
   //点击后选择option
   if (tag == 'select' && item.info.type == 'select-one') {
-    this.stmt('.click(Selector(' + selector + ').find("option").withExactText("' + item.info.value + '"))', 2);
+    var text = item.info.value;
+    for (i in item.info.options) {
+      if (item.info.options[i].value == item.info.value) {
+        text = item.info.options[i].text;
+        break;
+      }
+    }
+
+    this.stmt('.click(Selector(' + selector + ').find("option").withExactText("' + text + '"))', 2);
   }
 
   //点击后选择text
   if (tag == 'input' && item.info.type == 'text') {
     this.stmt('.typeText(Selector(' + selector + '), "' + item.info.value + '", {replace: true})', 2);
+  }
+
+  //点击后触发upload
+  if (tag == 'input' && item.info.type == 'file') {
+    this.stmt('.setFilesToUpload(Selector(' + selector + '), "' + item.info.value + '")', 2);
+    this.stmt('.wait(1000)', 2);
   }
 }
 
@@ -402,8 +420,10 @@ TestCafeRenderer.prototype.getFormSelector = function (item) {
 }
 
 TestCafeRenderer.prototype.keypress = function (item) {
-  var text = item.text.replace('\n', '').replace('\r', '\\r');
-  this.stmt('.typeText(Selector("' + this.getControl(item) + '"), "' + text + '", {replace: true})', 2);
+  var text = item.text.replace('\n', '').replace('\r', '');
+  if (text && text !== "") {
+    this.stmt('.typeText(Selector("' + this.getControl(item) + '"), "' + text + ')', 2);
+  }
 }
 
 TestCafeRenderer.prototype.submit = function (item) {
@@ -532,14 +552,6 @@ TestCafeRenderer.prototype.waitAndTestSelector = function (selector) {
 TestCafeRenderer.prototype.postToServer = function () {
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'http://127.0.0.1:8086/scripts', true);
-  xhr.onload = function () {
-    if (this.status == 200) {
-      //response = JSON.parse(this.responseText);
-      //window.open('https://ide.casperbox.com/?' + response.id);
-    } else {
-      alert("Error " + this.status);
-    }
-  };
   xhr.send(document.getElementsByTagName('pre')[0].innerText);
 }
 
