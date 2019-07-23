@@ -48,7 +48,9 @@ function TestCafeRenderer(document) {
 
 TestCafeRenderer.prototype.download = function (fileName, content) {
   var inst = document.createElement("a"),
-    blob = new Blob([js_beautify(content)], { "type": "text/javascript" }),
+    blob = new Blob([js_beautify(content)], {
+      "type": "text/javascript"
+    }),
     evt = document.createEvent("HTMLEvents");
   document.body.innerText = "";
   evt.initEvent("click", false, false);
@@ -195,7 +197,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
         //Click
         //DoubleClick
         if ((this.items[i + 5] && this.items[i + 5].type == etypes.DoubleClick && this.items[i + 5].x == item.x && this.items[i + 5].y == item.y) ||
-            (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
+          (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         }
         //MouseDown
@@ -203,8 +205,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
         //RightClick
         else if (this.items[i + 1] && this.items[i + 1].type == etypes.RightClick && this.items[i + 1].x == item.x && this.items[i + 1].y == item.y) {
           //RightClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
-        }
-        else {
+        } else {
           //Click情况，根据本次MouseDown/MouseUp构建Click，同时滤过接下来一个Click
           this[this.dispatch[etypes.Click]](item);
         }
@@ -480,8 +481,7 @@ TestCafeRenderer.prototype.checkValue = function (item) {
     else
       selected = 'not(@checked)'
     selector = 'x("//input[' + way + ' and ' + selected + ']")';
-  }
-  else {
+  } else {
     var value = this.pyrepr(item.info.value)
     var tag = item.info.tagName.toLowerCase();
     selector = 'x("//' + tag + '[' + way + ' and @value=' + value + ']")';
@@ -552,6 +552,13 @@ TestCafeRenderer.prototype.waitAndTestSelector = function (selector) {
 TestCafeRenderer.prototype.postToServer = function () {
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'http://127.0.0.1:8086/scripts', true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      //alert(xhr.responseText);
+    } else {
+      alert(xhr.statusText);
+    }
+  }
   xhr.send(document.getElementsByTagName('pre')[0].innerText);
 }
 
@@ -562,13 +569,15 @@ window.onload = function onpageload() {
   if (window.location.search == "?xy=true") {
     with_xy = true;
   }
-  chrome.runtime.sendMessage({ action: "get_items" }, function (response) {
+  chrome.runtime.sendMessage({
+    action: "get_items"
+  }, function (response) {
     dt.items = response.items;
     dt.render(with_xy,
       download ?
-        function (content) {
-          dt.download(false, content);
-        } : false
+      function (content) {
+        dt.download(false, content);
+      } : false
     );
     if (!download) {
       document.getElementById("run-button").onclick = function () {
