@@ -16,7 +16,7 @@ app.use(async (ctx) => {
 
       //运行脚本
       var shell = require('shelljs');
-      shell.exec('testcafe chrome:headless ../test/test.js', function(code, stdout, stderr) {
+      shell.exec('testcafe chrome ../test/test.js -e --speed 0.2', function(code, stdout, stderr) {
         console.log('Exit code:', code);
         //console.log('Program output:', stdout);
         //console.log('Program stderr:', stderr);

@@ -321,6 +321,15 @@ TestRecorder.ElementInfo = function (element) {
     }
   }
   this.label = this.findLabelText(element);
+  this.path = this.getPath(element);
+}
+
+TestRecorder.ElementInfo.prototype.getPath = function (element) {
+  var tag = element.tagName.toLowerCase();
+  if (!element) return "";
+  if (tag === "body") return "";
+  if (element.id !== "") return tag + "#" + element.id;
+  return this.getPath(element.parentNode) + " > " + tag + ((element.className != "" && element.className.split(" ").length < 3) ? "." + element.className.replace(/[ ]/g, ".") : "");
 }
 
 TestRecorder.ElementInfo.prototype.findLabelText = function (element) {
@@ -966,9 +975,10 @@ TestRecorder.Recorder.prototype.onpageload = function () {
 }
 
 TestRecorder.Recorder.prototype.onchange = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
   var last = recorder.testcase.peek();
-  if (last.type && last.type == TestRecorder.EventTypes.Click) {
+  if (last.type && (last.type == TestRecorder.EventTypes.Click || last.type == TestRecorder.EventTypes.MouseDown)) {
     //前一个动作是Click，本次动作上报Change，触发typeText
     var et = TestRecorder.EventTypes;
     var v = new TestRecorder.ElementEvent(et.Change, e.target());
@@ -980,11 +990,13 @@ TestRecorder.Recorder.prototype.onchange = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onselect = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
   recorder.log("select: " + e.target());
 }
 
 TestRecorder.Recorder.prototype.onsubmit = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
   var et = TestRecorder.EventTypes;
   // We want to save the form element as the event target
@@ -1052,6 +1064,7 @@ TestRecorder.Recorder.prototype.onmouseup = function (e) {
 //IE. In both cases, we need to prevent the default action for cmenu.
 
 TestRecorder.Recorder.prototype.onclick = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
 
   //shift+click模拟鼠标右击
@@ -1133,22 +1146,22 @@ TestRecorder.Recorder.prototype.onkeydown = function (e) {
   var et = TestRecorder.EventTypes;
 
   //点击Backspace键
-  if (e.keycode() == 9 /*Backspace*/) {
-    this.testcase.append(
+  if (e.keycode() == 8 /*Backspace*/) {
+    recorder.testcase.append(
       new TestRecorder.ElementEvent(et.PressKey, e.target(), "backspace")
     );
   }
 
   //点击Tab键
   if (e.keycode() == 9 /*Tab*/) {
-    this.testcase.append(
+    recorder.testcase.append(
       new TestRecorder.ElementEvent(et.PressKey, e.target(), "tab")
     );
   }
 
   //点击Enter键
   if (e.keycode() == 13 /*Enter*/) {
-    this.testcase.append(
+    recorder.testcase.append(
       new TestRecorder.ElementEvent(et.PressKey, e.target(), "enter")
     );
   }

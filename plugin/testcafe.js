@@ -310,6 +310,8 @@ TestCafeRenderer.prototype.getControl = function (item) {
     selector = tag + '[type=' + type + '][value=' + this.pyrepr(item.info.value) + ']';
   } else if (item.info.name) {
     selector = tag + '[name=' + this.pyrepr(item.info.name) + ']';
+  } else if (item.info.path != "") {
+    selector = item.info.path;
   } else {
     selector = tag + item.info.selector;
   }
@@ -368,8 +370,7 @@ TestCafeRenderer.prototype.rightclick = function (item) {
 }
 
 TestCafeRenderer.prototype.presskey = function (item) {
-  var selector = '"' + this.getControl(item) + '"';
-  this.stmt('.pressKey(Selector(' + selector + '), "' + item.info.value + '")', 2);
+  this.stmt('.pressKey("' + item.text + '")', 2);
 }
 
 TestCafeRenderer.prototype.change = function (item) {
@@ -423,7 +424,7 @@ TestCafeRenderer.prototype.getFormSelector = function (item) {
 TestCafeRenderer.prototype.keypress = function (item) {
   var text = item.text.replace('\n', '').replace('\r', '');
   if (text && text !== "") {
-    this.stmt('.typeText(Selector("' + this.getControl(item) + '"), "' + text + ')', 2);
+    this.stmt('.typeText(Selector("' + this.getControl(item) + '"), "' + text + '")', 2);
   }
 }
 
@@ -556,7 +557,7 @@ TestCafeRenderer.prototype.postToServer = function () {
     if (xhr.readyState == 4 && xhr.status == 200) {
       //alert(xhr.responseText);
     } else {
-      alert(xhr.statusText);
+      //alert(xhr.statusText);
     }
   }
   xhr.send(document.getElementsByTagName('pre')[0].innerText);
