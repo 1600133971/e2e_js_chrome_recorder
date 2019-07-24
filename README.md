@@ -1,6 +1,6 @@
-# e2e_js_chrome_recorder
+# testcafe_test_recorder_chrome_plugin
 
-This is the TestCafe test recorder plugin for chrome browser.
+This is the TestCafe test recorder plugin for chrome browser. [in progress]
 
 ## Install
 
