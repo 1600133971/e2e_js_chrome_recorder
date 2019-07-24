@@ -329,7 +329,8 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
   if (!element) return "";
   if (tag === "body") return "";
   if (element.id !== "") return tag + "#" + element.id;
-  return this.getPath(element.parentNode) + " > " + tag + ((element.className != "" && element.className.split(" ").length < 3) ? "." + element.className.replace(/[ ]/g, ".") : "");
+  var parent = this.getPath(element.parentNode);
+  return (parent !== "" ? parent  + " > " : "") + tag + ((element.className != "" && element.className.split(" ").length < 3) ? "." + element.className.replace(/[ ]/g, ".") : "");
 }
 
 TestRecorder.ElementInfo.prototype.findLabelText = function (element) {
@@ -1111,6 +1112,7 @@ TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
   return false;
 }
 
+//keypress不能拦截功能键，只能拦截可打印字符
 TestRecorder.Recorder.prototype.onkeypress = function (e) {
   var e = new TestRecorder.Event(e);
 

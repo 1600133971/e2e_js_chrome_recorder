@@ -1,5 +1,5 @@
 //==============================================================================
-// TestCafe generated Mon Jul 22 2019 21:18:37 GMT+0800 (中国标准时间) 
+// TestCafe generated Wed Jul 24 2019 22:59:45 GMT+0800 (中国标准时间) 
 //==============================================================================
 
 import { Selector, t } from 'testcafe';
@@ -9,7 +9,7 @@ fixture `fixture demo`
 
 test('Resurrectio test', async t => {
   await t
-    .drag(Selector("input#populate"), 1, 0)
-    .click(Selector(".swal-button.swal-button--Confirm"))
+    .click(Selector("input#populate"))
+    .click(Selector("div.swal-overlay.swal-overlay--show-modal > div.swal-modal > div.swal-footer > div.swal-button-container > button.swal-button.swal-button--Confirm"))
 
 });
