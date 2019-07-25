@@ -325,8 +325,8 @@ TestRecorder.ElementInfo = function (element) {
 }
 
 TestRecorder.ElementInfo.prototype.getPath = function (element) {
-  var tag = element.tagName.toLowerCase();
   if (!element) return "";
+  var tag = element.tagName.toLowerCase();
   if (tag === "body") return "";
   if (element.id !== "") return tag + "#" + element.id;
   var parent = this.getPath(element.parentNode);

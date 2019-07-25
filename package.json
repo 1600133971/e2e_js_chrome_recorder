@@ -1,8 +1,8 @@
 {
-  "name": "e2e_js_chrome_recorder",
+  "name": "testcafe_test_recorder_chrome_plugin",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "e2e_js_chrome_recorder",
+  "description": "testcafe_test_recorder_chrome_plugin",
   "author": "1600133971",
   "scripts": {
     "web": "cd web & node server.js 8085",

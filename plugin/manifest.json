@@ -1,8 +1,8 @@
 {
-  "name": "Resurrectio",
-  "version": "0.5",
+  "name": "TestCafeJS test recorder",
+  "version": "0.1",
   "manifest_version": 2,
-  "description": "Functional-oriented and javascript-friendly test recorder. Exports CasperJS scripts. Supports screenshots.",
+  "description": "Functional-oriented and javascript-friendly test recorder. Exports TestCafeJS scripts. Supports screenshots.",
   "icons": {"48": "makina-icon.png",
           "128": "makina-icon-128.png" },
   "browser_action": {

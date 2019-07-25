@@ -54,7 +54,7 @@ TestCafeRenderer.prototype.download = function (fileName, content) {
     evt = document.createEvent("HTMLEvents");
   document.body.innerText = "";
   evt.initEvent("click", false, false);
-  inst.download = fileName || "resurrectio.test.js";
+  inst.download = fileName || "TestCafeJS.test.js";
   inst.href = URL.createObjectURL(blob);
   inst.dispatchEvent(evt);
   inst.click();
@@ -273,22 +273,20 @@ TestCafeRenderer.prototype.startUrl = function (item) {
   var url = this.rewriteUrl(item.url);
   this.stmt(".page `" + url + "`;", 1);
   this.space();
-  this.stmt("test('Resurrectio test', async t => {", 0);
+  this.stmt("test('TestCafeJS test', async t => {", 0);
   this.stmt("await t", 1);
 }
+
 TestCafeRenderer.prototype.openUrl = function (item) {
   var url = this.rewriteUrl(item.url);
   var history = this.history;
   // if the user apparently hit the back button, render the event as such
   if (url == history[history.length - 2]) {
-    this.stmt('casper.then(function() {');
-    this.stmt('    this.back();');
-    this.stmt('});');
     history.pop();
     history.pop();
-  } else {
-    this.stmt("casper.thenOpen(" + url + ");");
   }
+
+  this.stmt(".navigateTo(" + url + ")", 2);
 }
 
 TestCafeRenderer.prototype.pageLoad = function (item) {
@@ -313,38 +311,9 @@ TestCafeRenderer.prototype.getControl = function (item) {
   } else if (item.info.path != "") {
     selector = item.info.path;
   } else {
-    selector = tag + item.info.selector;
+    selector = item.info.selector;
   }
   return selector;
-}
-
-TestCafeRenderer.prototype.getControlXPath = function (item) {
-  var type = item.info.type;
-  var way;
-  if ((type == "submit" || type == "button") && item.info.value)
-    way = '@value=' + this.pyrepr(this.normalizeWhitespace(item.info.value));
-  else if (item.info.name)
-    way = '@name=' + this.pyrepr(item.info.name);
-  else if (item.info.id)
-    way = '@id=' + this.pyrepr(item.info.id);
-  else
-    way = 'TODO';
-
-  return way;
-}
-
-TestCafeRenderer.prototype.getLinkXPath = function (item) {
-  var way;
-  if (item.text)
-    way = 'normalize-space(text())=' + this.cleanStringForXpath(this.normalizeWhitespace(item.text), true);
-  else if (item.info.id)
-    way = '@id=' + this.pyrepr(item.info.id);
-  else if (item.info.href)
-    way = '@href=' + this.pyrepr(this.shortUrl(item.info.href));
-  else if (item.info.title)
-    way = 'title=' + this.pyrepr(this.normalizeWhitespace(item.info.title));
-
-  return way;
 }
 
 TestCafeRenderer.prototype.mousedrag = function (item) {
@@ -407,20 +376,6 @@ TestCafeRenderer.prototype.mouseover = function (item) {
   this.stmt('.hover(Selector(' + selector + '))', 2);
 }
 
-TestCafeRenderer.prototype.getFormSelector = function (item) {
-  var info = item.info;
-  if (!info.form) {
-    return '';
-  }
-  if (info.form.name) {
-    return "form[name=" + info.form.name + "] ";
-  } else if (info.form.id) {
-    return "form#" + info.form.id + " ";
-  } else {
-    return "form ";
-  }
-}
-
 TestCafeRenderer.prototype.keypress = function (item) {
   var text = item.text.replace('\n', '').replace('\r', '');
   if (text && text !== "") {
@@ -429,15 +384,10 @@ TestCafeRenderer.prototype.keypress = function (item) {
 }
 
 TestCafeRenderer.prototype.submit = function (item) {
-  // the submit has been called somehow (user, or script)
-  // so no need to trigger it.
   this.stmt("/* submit form */", 2);
 }
 
 TestCafeRenderer.prototype.screenShot = function (item) {
-  // wait 1 second is not the ideal solution, but will be enough most
-  // part of time. For slow pages, an assert before capture will make
-  // sure evrything is properly loaded before screenshot.
   this.stmt('.wait(1000)', 2);
   this.stmt('.takeScreenshot("screenshot' + this.screen_id + '.png")', 2);
   this.screen_id = this.screen_id + 1;
@@ -453,101 +403,58 @@ TestCafeRenderer.prototype.comment = function (item) {
 }
 
 TestCafeRenderer.prototype.checkPageTitle = function (item) {
-  var title = this.pyrepr(item.title, true);
-  this.stmt('casper.then(function() {');
-  this.stmt('    test.assertTitle(' + title + ');');
-  this.stmt('});');
+  this.stmt('.expect(await Selector("head > title").textContent).eql("' + item.title + '")', 2);
 }
 
 TestCafeRenderer.prototype.checkPageLocation = function (item) {
-  var url = this.regexp_escape(item.url);
-  this.stmt('casper.then(function() {');
-  this.stmt('    test.assertUrlMatch(/^' + url + '$/);');
-  this.stmt('});');
+  this.stmt('.expect("' + item.url + '" !== "").ok()', 2);
 }
 
 TestCafeRenderer.prototype.checkTextPresent = function (item) {
-  var selector = 'x("//*[contains(text(), ' + this.pyrepr(item.text, true) + ')]")';
-  this.waitAndTestSelector(selector);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").textContent != "").ok()', 2);
 }
 
 TestCafeRenderer.prototype.checkValue = function (item) {
   var type = item.info.type;
-  var way = this.getControlXPath(item);
-  var selector = '';
   if (type == 'checkbox' || type == 'radio') {
-    var selected;
     if (item.info.checked)
-      selected = '@checked'
+      this.stmt('.expect(await Selector("' + this.getControl(item) + '").checked).ok()', 2);
     else
-      selected = 'not(@checked)'
-    selector = 'x("//input[' + way + ' and ' + selected + ']")';
+      this.stmt('.expect(await Selector("' + this.getControl(item) + '").checked).notOk()', 2);
   } else {
-    var value = this.pyrepr(item.info.value)
-    var tag = item.info.tagName.toLowerCase();
-    selector = 'x("//' + tag + '[' + way + ' and @value=' + value + ']")';
+    this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("value")).eql("' + item.info.value + '")', 2);
   }
-  this.waitAndTestSelector(selector);
 }
 
 TestCafeRenderer.prototype.checkText = function (item) {
-  var selector = '';
-  if ((item.info.type == "submit") || (item.info.type == "button")) {
-    selector = 'x("//input[@value=' + this.pyrepr(item.text, true) + ']")';
-  } else {
-    selector = 'x("//*[normalize-space(text())=' + this.cleanStringForXpath(item.text, true) + ']")';
-  }
-  this.waitAndTestSelector(selector);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").textContent).eql("' + item.text + '")', 2);
 }
 
 TestCafeRenderer.prototype.checkHref = function (item) {
-  var href = this.pyrepr(this.shortUrl(item.info.href));
-  var xpath_selector = this.getLinkXPath(item);
-  if (xpath_selector) {
-    selector = 'x("//a[' + xpath_selector + ' and @href=' + href + ']")';
-  } else {
-    selector = item.info.selector + '[href=' + href + ']';
-  }
-  this.stmt('casper.then(function() {');
-  this.stmt('    test.assertExists(' + selector + ');');
-  this.stmt('});');
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").hasAttribute("href")).ok()', 2);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("href")).eql("' + item.info.href + '")', 2);
 }
 
 TestCafeRenderer.prototype.checkEnabled = function (item) {
-  var way = this.getControlXPath(item);
-  var tag = item.info.tagName.toLowerCase();
-  this.waitAndTestSelector('x("//' + tag + '[' + way + ' and not(@disabled)]")');
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").hasAttribute("disabled")).notOk()', 2);
 }
 
 TestCafeRenderer.prototype.checkDisabled = function (item) {
-  var way = this.getControlXPath(item);
-  var tag = item.info.tagName.toLowerCase();
-  this.waitAndTestSelector('x("//' + tag + '[' + way + ' and @disabled]")');
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").hasAttribute("disabled")).ok()', 2);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("disabled")).eql("disabled")', 2);
 }
 
 TestCafeRenderer.prototype.checkSelectValue = function (item) {
-  var value = this.pyrepr(item.info.value);
-  var way = this.getControlXPath(item);
-  this.waitAndTestSelector('x("//select[' + way + ']/option[@selected and @value=' + value + ']")');
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").find("option").withExactText("' + value + '").exists).ok()', 2);
 }
 
 TestCafeRenderer.prototype.checkSelectOptions = function (item) {
-  this.stmt('/* TODO */');
+  this.stmt('/* TODO */', 2);
 }
 
 TestCafeRenderer.prototype.checkImageSrc = function (item) {
-  var src = this.pyrepr(this.shortUrl(item.info.src));
-  this.waitAndTestSelector('x("//img[@src=' + src + ']")');
-}
-
-TestCafeRenderer.prototype.waitAndTestSelector = function (selector) {
-  this.stmt('casper.waitForSelector(' + selector + ',');
-  this.stmt('    function success() {');
-  this.stmt('        test.assertExists(' + selector + ');')
-  this.stmt('      },');
-  this.stmt('    function fail() {');
-  this.stmt('        test.assertExists(' + selector + ');')
-  this.stmt('});');
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").hasAttribute("src")).ok()', 2);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("src") !== "").ok()', 2);
 }
 
 TestCafeRenderer.prototype.postToServer = function () {
