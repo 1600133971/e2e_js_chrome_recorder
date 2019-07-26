@@ -411,16 +411,16 @@ TestCafeRenderer.prototype.checkPageLocation = function (item) {
 }
 
 TestCafeRenderer.prototype.checkTextPresent = function (item) {
-  this.stmt('.expect(await Selector("' + this.getControl(item) + '").textContent != "").ok()', 2);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").textContent).notEql("")', 2);
 }
 
 TestCafeRenderer.prototype.checkValue = function (item) {
   var type = item.info.type;
   if (type == 'checkbox' || type == 'radio') {
     if (item.info.checked)
-      this.stmt('.expect(await Selector("' + this.getControl(item) + '").checked).ok()', 2);
+      this.stmt('.expect(Selector("' + this.getControl(item) + '").checked).ok()', 2);
     else
-      this.stmt('.expect(await Selector("' + this.getControl(item) + '").checked).notOk()', 2);
+      this.stmt('.expect(Selector("' + this.getControl(item) + '").checked).notOk()', 2);
   } else {
     this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("value")).eql("' + item.info.value + '")', 2);
   }
@@ -445,7 +445,7 @@ TestCafeRenderer.prototype.checkDisabled = function (item) {
 }
 
 TestCafeRenderer.prototype.checkSelectValue = function (item) {
-  this.stmt('.expect(await Selector("' + this.getControl(item) + '").find("option").withExactText("' + value + '").exists).ok()', 2);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").find("option").withExactText("' + item.info.value + '").exists).ok()', 2);
 }
 
 TestCafeRenderer.prototype.checkSelectOptions = function (item) {
@@ -454,7 +454,7 @@ TestCafeRenderer.prototype.checkSelectOptions = function (item) {
 
 TestCafeRenderer.prototype.checkImageSrc = function (item) {
   this.stmt('.expect(await Selector("' + this.getControl(item) + '").hasAttribute("src")).ok()', 2);
-  this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("src") !== "").ok()', 2);
+  this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("src")).notEql("")', 2);
 }
 
 TestCafeRenderer.prototype.postToServer = function () {
