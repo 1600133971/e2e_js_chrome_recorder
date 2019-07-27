@@ -280,12 +280,22 @@ TestRecorder.ElementInfo = function (element) {
 }
 
 TestRecorder.ElementInfo.prototype.getPath = function (element) {
-  if (!element) return "";
+  if (!element) {
+    return "";
+  }
   var tag = element.tagName.toLowerCase();
-  if (tag === "body") return "";
-  if (element.id !== "") return tag + "#" + element.id;
+  if (tag === "body") {
+    return "";
+  }
+  if (tag === "button" && element.className != "") {
+    return tag + "." + element.className.replace(/[ ]/g, ".");
+  } 
+  if (element.id !== "") {
+    return tag + "#" + element.id;
+  } 
   var parent = this.getPath(element.parentNode);
-  return (parent !== "" ? parent  + " > " : "") + tag + ((element.className != "" && element.className.split(" ").length < 3) ? "." + element.className.replace(/[ ]/g, ".") : "");
+  var cls = (element.className != "" && element.className.split(" ").length < 3) ? "." + element.className.replace(/[ ]/g, ".") : "";
+  return (parent !== "" ? parent  + " > " : "") + tag + cls;
 }
 
 TestRecorder.ElementInfo.prototype.findLabelText = function (element) {
