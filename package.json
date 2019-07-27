@@ -5,7 +5,7 @@
   "description": "testcafe_test_recorder_chrome_plugin",
   "author": "1600133971",
   "scripts": {
-    "web": "cd web & node server.js 8085",
+    "web": "cd web & http-server -a localhost -p 8085",
     "test": "testcafe chrome ./test/test.js -e",
     "live": "testcafe chrome ./test/test.js -L -e",
     "server": "cd server & node index.js"
