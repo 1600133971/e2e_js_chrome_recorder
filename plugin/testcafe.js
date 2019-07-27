@@ -425,7 +425,7 @@ TestCafeRenderer.prototype.checkPageTitle = function (item) {
 }
 
 TestCafeRenderer.prototype.checkPageLocation = function (item) {
-  this.stmt('.expect("' + item.url + '" !== "").ok()', 2);
+  this.stmt('.expect("' + item.url + '").notEql("")', 2);
 }
 
 TestCafeRenderer.prototype.checkTextPresent = function (item) {

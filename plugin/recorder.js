@@ -1178,6 +1178,7 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
 TestRecorder.Recorder.prototype.onkeydown = function (e) {
   var e = new TestRecorder.Event(e);
   var et = TestRecorder.EventTypes;
+  //console.log("onkeydown:", e.keycode);
 
   //点击Backspace键
   if (e.keycode() == 8 /*Backspace*/) {
