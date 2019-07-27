@@ -1,5 +1,5 @@
 //==============================================================================
-// TestCafe generated Wed Jul 24 2019 22:59:45 GMT+0800 (中国标准时间) 
+// TestCafe generated Sat Jul 27 2019 16:13:04 GMT+0800 (中国标准时间) 
 //==============================================================================
 
 import { Selector, t } from 'testcafe';
@@ -9,7 +9,10 @@ fixture `fixture demo`
 
 test('TestCafeJS test', async t => {
   await t
-    .click(Selector("input#populate"))
-    .click(Selector("div.swal-overlay.swal-overlay--show-modal > div.swal-modal > div.swal-footer > div.swal-button-container > button.swal-button.swal-button--Confirm"))
+    .click(Selector("select#preferred-interface"))
+    .click(Selector("select#preferred-interface").find("option").withExactText("JavaScript API"))
+    .expect(await Selector("select#preferred-interface").find("option").withExactText("JavaScript API").exists).ok()
+    .expect(Selector("select#preferred-interface").find("option").withExactText("JavaScript API").selected).ok()
+    .expect(Selector("select#preferred-interface").childElementCount).notEql(0)
 
 });

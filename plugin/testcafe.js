@@ -417,7 +417,7 @@ TestCafeRenderer.prototype.comment = function (item) {
 }
 
 TestCafeRenderer.prototype.checkPageTitle = function (item) {
-  this.stmt('.expect(await Selector("head > title").textContent).eql("' + item.title + '")', 2);
+  this.stmt('.expect(Selector("head > title").textContent).eql("' + item.title + '")', 2);
 }
 
 TestCafeRenderer.prototype.checkPageLocation = function (item) {
@@ -425,7 +425,7 @@ TestCafeRenderer.prototype.checkPageLocation = function (item) {
 }
 
 TestCafeRenderer.prototype.checkTextPresent = function (item) {
-  this.stmt('.expect(await Selector("' + this.getControl(item) + '").textContent).notEql("")', 2);
+  this.stmt('.expect(Selector("' + this.getControl(item) + '").textContent).notEql("")', 2);
 }
 
 TestCafeRenderer.prototype.checkValue = function (item) {
@@ -442,7 +442,7 @@ TestCafeRenderer.prototype.checkValue = function (item) {
 }
 
 TestCafeRenderer.prototype.checkText = function (item) {
-  this.stmt('.expect(await Selector("' + this.getControl(item) + '").textContent).eql("' + item.text + '")', 2);
+  this.stmt('.expect(Selector("' + this.getControl(item) + '").textContent).eql("' + item.text + '")', 2);
 }
 
 TestCafeRenderer.prototype.checkHref = function (item) {
@@ -464,7 +464,8 @@ TestCafeRenderer.prototype.checkSelectValue = function (item) {
 }
 
 TestCafeRenderer.prototype.checkSelectOptions = function (item) {
-  this.stmt('/* TODO */', 2);
+  this.stmt('.expect(Selector("' + this.getControl(item) + '").find("option").withExactText("' + item.info.value + '").selected).ok()', 2);
+  this.stmt('.expect(Selector("' + this.getControl(item) + '").childElementCount).notEql(0)', 2);
 }
 
 TestCafeRenderer.prototype.checkImageSrc = function (item) {

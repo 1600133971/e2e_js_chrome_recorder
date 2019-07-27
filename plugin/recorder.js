@@ -480,7 +480,7 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
   menu.style.padding = "2px";
   menu.style.position = "absolute";
   menu.style.display = "none";
-  menu.style.zIndex = "10000";
+  menu.style.zIndex = "10010";
   menu.style.top = y.toString();
   menu.style.left = x.toString();
   menu.onmouseover = contextmenu.onmouseover;
@@ -518,11 +518,12 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
     menu.appendChild(this.item("Check Value", this.checkValue));
     menu.appendChild(this.item("Check Enabled", this.checkEnabled));
     menu.appendChild(this.item("Check Disabled", this.checkDisabled));
-  } else {
-    menu.appendChild(this.item("Check Page Location", this.checkPageLocation));
-    menu.appendChild(this.item("Check Page Title", this.checkPageTitle));
-    menu.appendChild(this.item("Screenshot", this.doScreenShot));
+  } else if (t.innerText) {
+    menu.appendChild(this.item("Check Text", this.checkText));
   }
+  menu.appendChild(this.item("Check Page Location", this.checkPageLocation));
+  menu.appendChild(this.item("Check Page Title", this.checkPageTitle));
+  menu.appendChild(this.item("Screenshot", this.doScreenShot));
   menu.appendChild(this.item("Hover", this.hover));
   menu.appendChild(this.item("Resize Window", this.resizeWindow));
   menu.appendChild(this.item("Maximize Window", this.maximizeWindow));
