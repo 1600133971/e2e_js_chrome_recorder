@@ -162,6 +162,12 @@ TestRecorder.Event.prototype.preventDefault = function () {
     this.event.preventDefault();
 }
 
+TestRecorder.Event.prototype.default = function () {
+  e.stopPropagation();
+  e.preventDefault();
+  return false;
+}
+
 TestRecorder.Event.prototype.type = function () {
   return this.event.type;
 }
@@ -849,20 +855,6 @@ recorder.logfunc = function (msg) { console.log(msg); };
 TestRecorder.Recorder.prototype.start = function () {
   this.window = window;
   this.captureEvents();
-
-  // OVERRIDE stopPropagation
-  /*var actualCode = '(' + function() {
-      var overloadStopPropagation = Event.prototype.stopPropagation;
-      Event.prototype.stopPropagation = function(){
-          console.log(this);
-          overloadStopPropagation.apply(this, arguments);
-      };
-  } + ')();';
-  var script = document.createElement('script');
-  script.textContent = actualCode;
-  (document.head||document.documentElement).appendChild(script);
-  script.parentNode.removeChild(script);*/
-
   this.active = true;
   this.log("recorder started");
 }
@@ -1116,9 +1108,8 @@ TestRecorder.Recorder.prototype.onclick = function (e) {
     recorder.clickaction(e);
     return true;
   }
-  e.stopPropagation();
-  e.preventDefault();
-  return false;
+
+  return e.default();
 }
 
 TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
@@ -1128,9 +1119,8 @@ TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
     recorder.doubleclickaction(e);
     return true;
   }
-  e.stopPropagation();
-  e.preventDefault();
-  return false;
+
+  return e.default();
 }
 
 TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
@@ -1139,26 +1129,18 @@ TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
   //右键屏蔽原有菜单，显示定制菜单，右击由shift+click激活
   recorder.check(e);
 
-  e.stopPropagation();
-  e.preventDefault();
-  return false;
+  return e.default();
 }
 
 //keypress不能拦截功能键，只能拦截可打印字符
 TestRecorder.Recorder.prototype.onkeypress = function (e) {
   var e = new TestRecorder.Event(e);
 
-  //动作未知
-  if (e.shiftkey() && (e.keychar() == 'C')) {
-    // TODO show comment box here
-  }
-
   //shift+S激活截屏事件
   if (e.shiftkey() && (e.keychar() == 'S')) {
     recorder.testcase.append(new TestRecorder.ScreenShotEvent());
-    e.stopPropagation();
-    e.preventDefault();
-    return false;
+    
+    return e.default();
   }
 
   var last = recorder.testcase.peek();
