@@ -35,6 +35,9 @@ EventTypes.MouseOver = 24;
 EventTypes.DoubleClick = 25;
 EventTypes.RightClick = 26;
 EventTypes.PressKey = 27;
+EventTypes.ResizeWindow = 28;
+EventTypes.MaximizeWindow = 29;
+EventTypes.NavigateTo = 30;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -151,6 +154,9 @@ d[EventTypes.MouseOver] = "mouseover";
 d[EventTypes.DoubleClick] = "doubleclick";
 d[EventTypes.RightClick] = "rightclick";
 d[EventTypes.PressKey] = "presskey";
+d[EventTypes.ResizeWindow] = "resizeWindow";
+d[EventTypes.MaximizeWindow] = "maximizeWindow";
+d[EventTypes.NavigateTo] = "navigateTo";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -340,6 +346,18 @@ TestCafeRenderer.prototype.rightclick = function (item) {
 
 TestCafeRenderer.prototype.presskey = function (item) {
   this.stmt('.pressKey("' + item.text + '")', 2);
+}
+
+TestCafeRenderer.prototype.resizeWindow = function (item) {
+  this.stmt('.resizeWindow(' + item.text + ')', 2);
+}
+
+TestCafeRenderer.prototype.maximizeWindow = function (item) {
+  this.stmt('.maximizeWindow()', 2);
+}
+
+TestCafeRenderer.prototype.navigateTo = function (item) {
+  this.stmt('.navigateTo("' + item.text + '")', 2);
 }
 
 TestCafeRenderer.prototype.change = function (item) {

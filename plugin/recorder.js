@@ -295,6 +295,9 @@ TestRecorder.EventTypes.MouseOver = 24;
 TestRecorder.EventTypes.DoubleClick = 25;
 TestRecorder.EventTypes.RightClick = 26;
 TestRecorder.EventTypes.PressKey = 27;
+TestRecorder.EventTypes.ResizeWindow = 28;
+TestRecorder.EventTypes.MaximizeWindow = 29;
+TestRecorder.EventTypes.NavigateTo = 30;
 
 TestRecorder.ElementInfo = function (element) {
   this.action = element.action;
@@ -567,6 +570,9 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
     menu.appendChild(this.item("Screenshot", this.doScreenShot));
   }
   menu.appendChild(this.item("Hover", this.hover));
+  menu.appendChild(this.item("Resize Window", this.resizeWindow));
+  menu.appendChild(this.item("Maximize Window", this.maximizeWindow));
+  menu.appendChild(this.item("Navigate To", this.navigateTo));
   menu.appendChild(this.item("Cancel", this.cancel));
 
   b.insertBefore(menu, b.firstChild);
@@ -779,6 +785,32 @@ TestRecorder.ContextMenu.prototype.hover = function () {
   var t = contextmenu.target;
   var et = TestRecorder.EventTypes;
   var e = new TestRecorder.ElementEvent(et.MouseOver, t);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.resizeWindow = function () {
+  var wnd = recorder.window;
+  var wh = TestRecorder.Browser.windowHeight(wnd);
+  var ww = TestRecorder.Browser.windowWidth(wnd);
+  var s = wh.toString() + ", " + ww.toString();
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.ResizeWindow, t, s);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.maximizeWindow = function () {
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.MaximizeWindow, t);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.navigateTo = function () {
+  var s = prompt('Navigate To URL:', 'http://');  
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.NavigateTo, t, s);
   contextmenu.record(e);
 }
 
