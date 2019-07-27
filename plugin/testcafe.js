@@ -67,12 +67,13 @@ TestCafeRenderer.prototype.download = function (fileName, content) {
 }
 
 TestCafeRenderer.prototype.text = function (txt) {
-  // todo: long lines
   this.document.writeln(txt);
 }
 
 TestCafeRenderer.prototype.stmt = function (text, indent) {
-  if (indent == undefined) indent = 1;
+  if (indent == undefined) {
+    indent = 1;
+  }
   var output = (new Array(2 * indent)).fill(" ").join("") + text;
   this.document.writeln(output);
 }
@@ -92,7 +93,9 @@ TestCafeRenderer.prototype.pyrepr = function (text, escape) {
   // the string quotes from accidentally getting escaped creating
   // a syntax error in the output code.
   var s = text;
-  if (escape) s = s.replace(/(['"])/g, "\\$1");
+  if (escape) {
+    s = s.replace(/(['"])/g, "\\$1");
+  }
   var s = "'" + s + "'";
   return s;
 }
@@ -176,8 +179,9 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
 
   for (var i = 0; i < this.items.length; i++) {
     var item = this.items[i];
-    if (item.type == etypes.Comment)
+    if (item.type == etypes.Comment) {
       this.space();
+    }
 
     if (i == 0) {
       if (item.type != etypes.OpenUrl) {
@@ -195,20 +199,12 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
     }
     if (item.type == etypes.MouseUp && last_down) {
       if (Math.abs(last_down.x - item.x) < 5 && Math.abs(last_down.y - item.y) < 5) {
-        //MouseDown
-        //MouseUp<-
-        //Click
-        //MouseDown
-        //MouseUp<-
-        //Click
-        //DoubleClick
+        //MouseDown //MouseUp<- //Click //MouseDown //MouseUp<- //Click //DoubleClick
         if ((this.items[i + 5] && this.items[i + 5].type == etypes.DoubleClick && this.items[i + 5].x == item.x && this.items[i + 5].y == item.y) ||
           (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         }
-        //MouseDown
-        //MouseUp<-
-        //RightClick
+        //MouseDown //MouseUp<- //RightClick
         else if (this.items[i + 1] && this.items[i + 1].type == etypes.RightClick && this.items[i + 1].x == item.x && this.items[i + 1].y == item.y) {
           //RightClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         } else {
@@ -435,10 +431,11 @@ TestCafeRenderer.prototype.checkTextPresent = function (item) {
 TestCafeRenderer.prototype.checkValue = function (item) {
   var type = item.info.type;
   if (type == 'checkbox' || type == 'radio') {
-    if (item.info.checked)
+    if (item.info.checked) {
       this.stmt('.expect(Selector("' + this.getControl(item) + '").checked).ok()', 2);
-    else
+    } else {
       this.stmt('.expect(Selector("' + this.getControl(item) + '").checked).notOk()', 2);
+    }
   } else {
     this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("value")).eql("' + item.info.value + '")', 2);
   }
