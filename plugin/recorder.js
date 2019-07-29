@@ -275,7 +275,7 @@ TestRecorder.ElementInfo = function (element) {
       var o = element.options[i];
       this.options[i] = { text: o.text, value: o.value };
     }
-    if (element.selectedOptions.length > 1) {
+    if (element.selectedOptions.length >= 1) {
       this.selectedText = element.selectedOptions[0].text;
     }
   }
