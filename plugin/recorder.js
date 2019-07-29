@@ -966,7 +966,7 @@ TestRecorder.Recorder.prototype.onchange = function (e) {
   //console.log(e);
   var e = new TestRecorder.Event(e);
   var last = recorder.testcase.peek();
-  if (last.type && (last.type == TestRecorder.EventTypes.Click || last.type == TestRecorder.EventTypes.MouseDown)) {
+  if (last != undefined && last.type != undefined && (last.type == TestRecorder.EventTypes.Click || last.type == TestRecorder.EventTypes.MouseDown)) {
     //前一个动作是Click，本次动作上报Change，触发typeText
     var et = TestRecorder.EventTypes;
     var v = new TestRecorder.ElementEvent(et.Change, e.target());
@@ -1115,7 +1115,7 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
   }
 
   var last = recorder.testcase.peek();
-  if (last.type && last.type == TestRecorder.EventTypes.KeyPress) {
+  if (last != undefined && last.type != undefined && last.type == TestRecorder.EventTypes.KeyPress) {
     //前一个事件是KeyPress，则更新text追加一个字符
     last.text = last.text + e.keychar();
     recorder.testcase.poke(last);
