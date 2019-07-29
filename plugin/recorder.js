@@ -249,6 +249,7 @@ TestRecorder.EventTypes.ResizeWindow = 28;
 TestRecorder.EventTypes.MaximizeWindow = 29;
 TestRecorder.EventTypes.NavigateTo = 30;
 
+//item.info信息
 TestRecorder.ElementInfo = function (element) {
   this.action = element.action;
   this.method = element.method;
@@ -269,10 +270,13 @@ TestRecorder.ElementInfo = function (element) {
   this.id = element.id;
   this.title = element.title;
   this.options = [];
-  if (element.selectedIndex) {
+  if (element.selectedIndex != undefined) {
     for (var i = 0; i < element.options.length; i++) {
       var o = element.options[i];
       this.options[i] = { text: o.text, value: o.value };
+    }
+    if (element.selectedOptions.length > 1) {
+      this.selectedText = element.selectedOptions[0].text;
     }
   }
   this.label = this.findLabelText(element);
@@ -294,8 +298,24 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
     return tag + "#" + element.id;
   } 
   var parent = this.getPath(element.parentNode);
+  var count = element.parentNode.childElementCount;
   var cls = (element.className != "" && element.className.split(" ").length < 3) ? "." + element.className.replace(/[ ]/g, ".") : "";
-  return (parent !== "" ? parent  + " > " : "") + tag + cls;
+
+  var childn = "";
+  if (cls === "" && count != undefined && count > 1) {
+    var n = 0;
+    for (i in element.parentNode.children) {
+      n++;
+      if (element.parentNode.children[i].innerText == element.innerText) {
+        break;
+      }
+    }
+    if (n > 0) {
+      childn = ":nth-child(" + n.toString() + ")";
+    }
+  }
+
+  return (parent !== "" ? parent  + " > " : "") + tag + cls + childn;
 }
 
 TestRecorder.ElementInfo.prototype.findLabelText = function (element) {
@@ -745,7 +765,7 @@ TestRecorder.ContextMenu.prototype.resizeWindow = function () {
   var wnd = recorder.window;
   var wh = TestRecorder.Browser.windowHeight(wnd);
   var ww = TestRecorder.Browser.windowWidth(wnd);
-  var s = wh.toString() + ", " + ww.toString();
+  var s = ww.toString() + ", " + wh.toString();
   var t = contextmenu.target;
   var et = TestRecorder.EventTypes;
   var e = new TestRecorder.ElementEvent(et.ResizeWindow, t, s);

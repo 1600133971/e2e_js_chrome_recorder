@@ -253,7 +253,7 @@ TestCafeRenderer.prototype.writeHeader = function (download) {
     this.text("//==============================================================================", 0);
     this.space();
   }
-  this.stmt("import { Selector, t } from 'testcafe';", 0);
+  this.stmt("import { Selector, t, ClientFunction } from 'testcafe';", 0);
   this.space();
   this.stmt("fixture `fixture demo`", 0);
 }
@@ -362,20 +362,12 @@ TestCafeRenderer.prototype.change = function (item) {
 
   //点击后选择option
   if (tag == 'select' && item.info.type == 'select-one') {
-    var text = item.info.value;
-    for (i in item.info.options) {
-      if (item.info.options[i].value == item.info.value) {
-        text = item.info.options[i].text;
-        break;
-      }
-    }
-
-    this.stmt('.click(Selector(' + selector + ').find("option").withExactText("' + text + '"))', 2);
+    this.stmt('.click(Selector(' + selector + ').find("option").withExactText("' + item.info.selectedText + '"))', 2);
   }
 
   //点击后选择text
   if (tag == 'input' && item.info.type == 'text') {
-    this.stmt('.typeText(Selector(' + selector + '), "' + item.info.value + '", {replace: true})', 2);
+    this.stmt('.typeText(Selector(' + selector + '), "' + item.info.value + '")', 2);
   }
 
   //点击后触发upload
@@ -422,6 +414,7 @@ TestCafeRenderer.prototype.checkPageTitle = function (item) {
 
 TestCafeRenderer.prototype.checkPageLocation = function (item) {
   this.stmt('.expect("' + item.url + '").notEql("")', 2);
+  this.stmt('.expect(ClientFunction(() => document.location.href.toString())()).match(/^'+ this.regexp_escape(item.url) +'$/)', 2);
 }
 
 TestCafeRenderer.prototype.checkTextPresent = function (item) {
@@ -442,7 +435,11 @@ TestCafeRenderer.prototype.checkValue = function (item) {
 }
 
 TestCafeRenderer.prototype.checkText = function (item) {
-  this.stmt('.expect(Selector("' + this.getControl(item) + '").textContent).eql("' + item.text + '")', 2);
+  if (item.text.indexOf('\n') >= 0) {
+    alert("no support for multilines!");
+  } else {
+    this.stmt('.expect(Selector("' + this.getControl(item) + '").textContent).eql("' + item.text + '")', 2);
+  }
 }
 
 TestCafeRenderer.prototype.checkHref = function (item) {
