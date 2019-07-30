@@ -38,6 +38,11 @@ EventTypes.PressKey = 27;
 EventTypes.ResizeWindow = 28;
 EventTypes.MaximizeWindow = 29;
 EventTypes.NavigateTo = 30;
+EventTypes.Wait = 31;
+EventTypes.NativeDialog = 32;
+EventTypes.Debug = 33;
+EventTypes.TestSpeed = 34;
+EventTypes.PageLoadTimeout = 35;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -160,6 +165,11 @@ d[EventTypes.PressKey] = "presskey";
 d[EventTypes.ResizeWindow] = "resizeWindow";
 d[EventTypes.MaximizeWindow] = "maximizeWindow";
 d[EventTypes.NavigateTo] = "navigateTo";
+d[EventTypes.Wait] = "wait";
+d[EventTypes.NativeDialog] = "nativeDialog";
+d[EventTypes.Debug] = "debug";
+d[EventTypes.TestSpeed] = "testSpeed";
+d[EventTypes.PageLoadTimeout] = "pageLoadTimeout";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -354,6 +364,26 @@ TestCafeRenderer.prototype.maximizeWindow = function (item) {
 
 TestCafeRenderer.prototype.navigateTo = function (item) {
   this.stmt('.navigateTo("' + item.text + '")', 2);
+}
+
+TestCafeRenderer.prototype.wait = function (item) {
+  this.stmt('.wait(' + item.text + ')', 2);
+}
+
+TestCafeRenderer.prototype.nativeDialog = function (item) {
+  this.stmt('.setNativeDialogHandler(() => true)', 2);
+}
+
+TestCafeRenderer.prototype.debug = function (item) {
+  this.stmt('.debug()', 2);
+}
+
+TestCafeRenderer.prototype.testSpeed = function (item) {
+  this.stmt('.setTestSpeed(' + item.text + ')', 2);
+}
+
+TestCafeRenderer.prototype.pageLoadTimeout = function (item) {
+  this.stmt('.setPageLoadTimeout("' + item.text + '")', 2);
 }
 
 TestCafeRenderer.prototype.change = function (item) {

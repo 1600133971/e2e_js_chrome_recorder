@@ -248,6 +248,11 @@ TestRecorder.EventTypes.PressKey = 27;
 TestRecorder.EventTypes.ResizeWindow = 28;
 TestRecorder.EventTypes.MaximizeWindow = 29;
 TestRecorder.EventTypes.NavigateTo = 30;
+TestRecorder.EventTypes.Wait = 31;
+TestRecorder.EventTypes.NativeDialog = 32;
+TestRecorder.EventTypes.Debug = 33;
+TestRecorder.EventTypes.TestSpeed = 34;
+TestRecorder.EventTypes.PageLoadTimeout = 35;
 
 //item.info信息
 TestRecorder.ElementInfo = function (element) {
@@ -299,7 +304,7 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
   } 
   var parent = this.getPath(element.parentNode);
   var count = element.parentNode.childElementCount;
-  var cls = (element.className != "" && element.className.split(" ").length < 3) ? "." + element.className.replace(/[ ]/g, ".") : "";
+  var cls = (element.className != "" && element.className.split(" ").length < 3 && element.className != "odd" && element.className != "even") ? "." + element.className.replace(/[ ]/g, ".") : "";
 
   var childn = "";
   if (cls === "" && count != undefined && count > 1) {
@@ -511,7 +516,7 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
   if (t.width && t.height) {
     menu.appendChild(this.item("Check Image Src", this.checkImgSrc));
   } else if (t.type == "text" || t.type == "textarea") {
-    menu.appendChild(this.item("Check Text Value", this.checkValue));
+    menu.appendChild(this.item("Check Text", this.checkValue));
     menu.appendChild(this.item("Check Enabled", this.checkEnabled));
     menu.appendChild(this.item("Check Disabled", this.checkDisabled));
   } else if (selected && (selected != "")) {
@@ -530,7 +535,6 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
     menu.appendChild(this.item("Check Enabled", this.checkEnabled));
     menu.appendChild(this.item("Check Disabled", this.checkDisabled));
   } else if (t.type == "button" || t.type == "submit") {
-    menu.appendChild(this.item("Check Button Text", this.checkText));
     menu.appendChild(this.item("Check Button Value", this.checkValue));
     menu.appendChild(this.item("Check Enabled", this.checkEnabled));
     menu.appendChild(this.item("Check Disabled", this.checkDisabled));
@@ -548,6 +552,11 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
   menu.appendChild(this.item("Resize Window", this.resizeWindow));
   menu.appendChild(this.item("Maximize Window", this.maximizeWindow));
   menu.appendChild(this.item("Navigate To", this.navigateTo));
+  menu.appendChild(this.item("Wait", this.wait));
+  menu.appendChild(this.item("Native Dialog Dealer", this.nativeDialog));
+  menu.appendChild(this.item("Debug", this.debug));
+  menu.appendChild(this.item("Test Speed", this.testSpeed));
+  menu.appendChild(this.item("Page Load Timeout", this.pageLoadTimeout));
   menu.appendChild(this.item("Cancel", this.cancel));
 
   b.insertBefore(menu, b.firstChild);
@@ -558,9 +567,9 @@ TestRecorder.ContextMenu.prototype.item = function (text, func) {
   var doc = recorder.window.document;
   var div = doc.createElement("div");
   var txt = doc.createTextNode(text);
-  div.setAttribute("style", "padding:6px;border:1px solid #ffffff;");
+  div.setAttribute("style", "padding:0px 6px;border:1px solid #ffffff;");
   div.style.border = "1px solid #ffffff";
-  div.style.padding = "6px";
+  div.style.padding = "0px 6px";
   div.appendChild(txt);
   div.onmouseover = this.onitemmouseover;
   div.onmouseout = this.onitemmouseout;
@@ -608,7 +617,7 @@ TestRecorder.ContextMenu.prototype.hide = function () {
 }
 
 TestRecorder.ContextMenu.prototype.onitemmouseover = function (e) {
-  this.style.backgroundColor = "#efefef";
+  this.style.backgroundColor = "mediumorchid";
   this.style.border = "1px solid #c0c0c0";
   return true;
 }
@@ -780,10 +789,48 @@ TestRecorder.ContextMenu.prototype.maximizeWindow = function () {
 }
 
 TestRecorder.ContextMenu.prototype.navigateTo = function () {
-  var s = prompt('Navigate To URL:', 'http://');  
+  var s = prompt('Navigate To URL:', 'http://');
   var t = contextmenu.target;
   var et = TestRecorder.EventTypes;
   var e = new TestRecorder.ElementEvent(et.NavigateTo, t, s);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.wait = function () {
+  var s = prompt('The pause duration, in milliseconds:', '1000');  
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.Wait, t, s);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.nativeDialog = function () {
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.NativeDialog, t);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.debug = function () {
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.Debug, t);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.testSpeed = function () {
+  var s = prompt('Specifies the test speed. Must be a number between 1(fastest) and 0.01(slowest):', '0.1');  
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.TestSpeed, t, s);
+  contextmenu.record(e);
+}
+
+TestRecorder.ContextMenu.prototype.pageLoadTimeout = function () {
+  var s = prompt('Page load timeout(milliseconds). 0 to skip waiting for the window.load event:', '0');  
+  var t = contextmenu.target;
+  var et = TestRecorder.EventTypes;
+  var e = new TestRecorder.ElementEvent(et.PageLoadTimeout, t, s);
   contextmenu.record(e);
 }
 
