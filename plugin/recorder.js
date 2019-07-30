@@ -618,12 +618,14 @@ TestRecorder.ContextMenu.prototype.hide = function () {
 
 TestRecorder.ContextMenu.prototype.onitemmouseover = function (e) {
   this.style.backgroundColor = "mediumorchid";
+  this.style.color = "#ffffff";
   this.style.border = "1px solid #c0c0c0";
   return true;
 }
 
 TestRecorder.ContextMenu.prototype.onitemmouseout = function (e) {
   this.style.backgroundColor = "#ffffff";
+  this.style.color = "#000000";
   this.style.border = "1px solid #ffffff";
   return true;
 }
