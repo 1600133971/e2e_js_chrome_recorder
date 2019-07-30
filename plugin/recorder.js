@@ -567,7 +567,7 @@ TestRecorder.ContextMenu.prototype.item = function (text, func) {
   var doc = recorder.window.document;
   var div = doc.createElement("div");
   var txt = doc.createTextNode(text);
-  div.setAttribute("style", "padding:0px 6px;border:1px solid #ffffff;");
+  div.setAttribute("style", "border-radius:5px;padding:0px 6px;border:1px solid #ffffff;");
   div.style.border = "1px solid #ffffff";
   div.style.padding = "0px 6px";
   div.appendChild(txt);
