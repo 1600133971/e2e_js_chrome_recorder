@@ -323,6 +323,7 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
     }
   }
 
+  //构建class或nth-child
   var count = element.parentNode != undefined ? element.parentNode.childElementCount : 0;
   var cls = (!find && className != "" && className.split(" ").length < 3) ? "." + className.replace(/[ ]/g, ".") : "";
   var childn = "";
