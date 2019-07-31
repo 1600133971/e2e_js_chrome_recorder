@@ -383,7 +383,7 @@ TestCafeRenderer.prototype.testSpeed = function (item) {
 }
 
 TestCafeRenderer.prototype.pageLoadTimeout = function (item) {
-  this.stmt('.setPageLoadTimeout("' + item.text + '")', 2);
+  this.stmt('.setPageLoadTimeout(' + item.text + ')', 2);
 }
 
 TestCafeRenderer.prototype.change = function (item) {
@@ -396,14 +396,13 @@ TestCafeRenderer.prototype.change = function (item) {
   }
 
   //点击后选择text
-  if (tag == 'input' && item.info.type == 'text') {
+  if (tag == 'input' && (item.info.type == 'text' || item.info.type == 'textarea')) {
     this.stmt('.typeText(Selector(' + selector + '), "' + item.info.value + '")', 2);
   }
 
   //点击后触发upload
   if (tag == 'input' && item.info.type == 'file') {
     this.stmt('.setFilesToUpload(Selector(' + selector + '), "' + item.info.value + '")', 2);
-    this.stmt('.wait(1000)', 2);
   }
 }
 
@@ -424,7 +423,6 @@ TestCafeRenderer.prototype.submit = function (item) {
 }
 
 TestCafeRenderer.prototype.screenShot = function (item) {
-  this.stmt('.wait(1000)', 2);
   this.stmt('.takeScreenshot("screenshot' + this.screen_id + '.png")', 2);
   this.screen_id = this.screen_id + 1;
 }

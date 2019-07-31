@@ -289,29 +289,48 @@ TestRecorder.ElementInfo = function (element) {
 }
 
 TestRecorder.ElementInfo.prototype.getPath = function (element) {
-  if (!element) {
+  // 无效
+  if (element == undefined || element == null || element == "") {
     return "";
   }
-  var tag = element.tagName.toLowerCase();
-  if (tag === "body") {
-    return "";
-  }
-  if (tag === "button" && element.className != "") {
-    return tag + "." + element.className.replace(/[ ]/g, ".");
-  } 
-  if (element.id !== "") {
-    return tag + "#" + element.id;
-  } 
-  var parent = this.getPath(element.parentNode);
-  var count = element.parentNode.childElementCount;
-  var cls = (element.className != "" && element.className.split(" ").length < 3 && element.className != "odd" && element.className != "even") ? "." + element.className.replace(/[ ]/g, ".") : "";
 
+  //html级别没有tagName
+  var tag = element.tagName != undefined ? element.tagName.toLowerCase() : "";
+  if (tag === "body" || tag === "html") {
+    return tag;
+  }
+
+  //消除className的前后空格
+  var className = element.className.trim();
+
+  //button类型含class单独列出
+  if (tag === "button" && className != "") {
+    return tag + "." + className.replace(/[ ]/g, ".");
+  }
+
+  //优先id
+  var id = element.id.trim();
+  if (id !== "") {
+    return tag + "#" + id;
+  }
+
+  //不解析class的tag列表
+  var filterTag = ["div", "table", "tbody", "tr", "td", "span", "fieldset"];
+  var find = false;
+  for (j in filterTag) {
+    if (filterTag[j] == tag) {
+      find = true;
+    }
+  }
+
+  var count = element.parentNode != undefined ? element.parentNode.childElementCount : 0;
+  var cls = (!find && className != "" && className.split(" ").length < 3) ? "." + className.replace(/[ ]/g, ".") : "";
   var childn = "";
-  if (cls === "" && count != undefined && count > 1) {
+  if (cls === "" && count > 1) {
     var n = 0;
     for (i in element.parentNode.children) {
       n++;
-      if (element.parentNode.children[i].innerText == element.innerText) {
+      if (element.parentNode.children[i].innerHTML == element.innerHTML && element.parentNode.children[i].className == element.className) {
         break;
       }
     }
@@ -320,6 +339,7 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
     }
   }
 
+  var parent = this.getPath(element.parentNode);
   return (parent !== "" ? parent  + " > " : "") + tag + cls + childn;
 }
 
@@ -516,7 +536,7 @@ TestRecorder.ContextMenu.prototype.build = function (t, x, y) {
   if (t.width && t.height) {
     menu.appendChild(this.item("Check Image Src", this.checkImgSrc));
   } else if (t.type == "text" || t.type == "textarea") {
-    menu.appendChild(this.item("Check Text", this.checkValue));
+    menu.appendChild(this.item("Check Text", this.checkText));
     menu.appendChild(this.item("Check Enabled", this.checkEnabled));
     menu.appendChild(this.item("Check Disabled", this.checkDisabled));
   } else if (selected && (selected != "")) {
@@ -1015,8 +1035,8 @@ TestRecorder.Recorder.prototype.onchange = function (e) {
   //console.log(e);
   var e = new TestRecorder.Event(e);
   var last = recorder.testcase.peek();
-  if (last != undefined && last.type != undefined && (last.type == TestRecorder.EventTypes.Click || last.type == TestRecorder.EventTypes.MouseDown)) {
-    //前一个动作是Click，本次动作上报Change，触发typeText
+  if (last != undefined && last.type != undefined && last.type == TestRecorder.EventTypes.Click) {
+    //前一个动作是Click，本次动作上报Change，触发typeText[场景：点击自动完成内容]
     var et = TestRecorder.EventTypes;
     var v = new TestRecorder.ElementEvent(et.Change, e.target());
     recorder.testcase.append(v);
@@ -1047,6 +1067,7 @@ TestRecorder.Recorder.prototype.onsubmit = function (e) {
 }
 
 TestRecorder.Recorder.prototype.ondrag = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
   recorder.testcase.append(
     new TestRecorder.MouseEvent(
@@ -1055,6 +1076,7 @@ TestRecorder.Recorder.prototype.ondrag = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onmousedown = function (e) {
+  //console.log(e);
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
     if (e.button() == TestRecorder.Event.LeftButton) {
@@ -1067,6 +1089,7 @@ TestRecorder.Recorder.prototype.onmousedown = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onmouseover = function (e) {
+  //console.log(e);
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
     if (e.target().className == "hov") {
@@ -1079,6 +1102,7 @@ TestRecorder.Recorder.prototype.onmouseover = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onmouseup = function (e) {
+  //console.log(e);
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
 
@@ -1127,6 +1151,7 @@ TestRecorder.Recorder.prototype.onclick = function (e) {
 }
 
 TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
 
   if (e.button() == TestRecorder.Event.LeftButton) {
@@ -1140,6 +1165,7 @@ TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
 }
 
 TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
 
   //右键屏蔽原有菜单，显示定制菜单，右击由shift+click激活
@@ -1152,6 +1178,7 @@ TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
 
 //keypress不能拦截功能键，只能拦截可打印字符
 TestRecorder.Recorder.prototype.onkeypress = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
 
   //shift+S激活截屏事件
@@ -1178,9 +1205,10 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onkeydown = function (e) {
+  //console.log(e);
   var e = new TestRecorder.Event(e);
   var et = TestRecorder.EventTypes;
-  //console.log("onkeydown:", e.keycode);
+  //console.log("onkeydown keycode:", e.keycode);
 
   //点击Backspace键
   if (e.keycode() == 8 /*Backspace*/) {
