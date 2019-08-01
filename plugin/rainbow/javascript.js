@@ -10,7 +10,7 @@ Rainbow.extend('javascript', [
      */
     {
         name: 'selector',
-        pattern: /(\$|Selector)(?=\.|\()/g
+        pattern: /\$(?=\.|\()/g
     },
     {
         name: 'support',
@@ -18,7 +18,7 @@ Rainbow.extend('javascript', [
     },
     {
         name: 'keyword',
-        pattern: /\b(export|default|from|fixture|await|async)\b/g
+        pattern: /\b(export|default|from|fixture|await|async|t|Selector|ClientFunction)\b/g
     },
     {
         name: 'function.call',
