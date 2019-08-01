@@ -180,7 +180,8 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
   var etypes = EventTypes;
   this.document.open();
   if (!download) {
-    this.document.writeln('<button id="run-button">Run</button>');
+    this.document.writeln('<input type="text" id="run-url" value="http://127.0.0.1:8086/scripts" style="width:300px;padding:10px;margin:10px;"></button>');
+    this.document.writeln('<button id="run-button" style="width:200px;padding:10px;margin:10px;">Run</button>');
     this.document.write("<" + "pre" + ">");
   }
   this.writeHeader(download);
@@ -258,14 +259,14 @@ TestCafeRenderer.prototype.writeHeader = function (download) {
   var date = new Date();
   if (!download) {
     this.space();
-    this.text("//==============================================================================", 0);
-    this.text("// TestCafe generated " + date + " ", 0);
-    this.text("//==============================================================================", 0);
+    this.text('//==============================================================================', 0);
+    this.text('// TestCafe generated ' + date + ' ', 0);
+    this.text('//==============================================================================', 0);
     this.space();
   }
-  this.stmt("import { Selector, t, ClientFunction } from 'testcafe';", 0);
+  this.stmt('import { Selector, t, ClientFunction } from "testcafe";', 0);
   this.space();
-  this.stmt("fixture `fixture demo`", 0);
+  this.stmt('fixture `fixture demo`', 0);
 }
 
 TestCafeRenderer.prototype.writeFooter = function () {
@@ -283,10 +284,10 @@ TestCafeRenderer.prototype.shortUrl = function (url) {
 
 TestCafeRenderer.prototype.startUrl = function (item) {
   var url = this.rewriteUrl(item.url);
-  this.stmt(".page `" + url + "`;", 1);
+  this.stmt('.page `' + url + '`;', 1);
   this.space();
-  this.stmt("test('TestCafeJS test', async t => {", 0);
-  this.stmt("await t", 1);
+  this.stmt('test("TestCafeJS test", async t => {', 0);
+  this.stmt('await t', 1);
 }
 
 TestCafeRenderer.prototype.openUrl = function (item) {
@@ -498,9 +499,9 @@ TestCafeRenderer.prototype.checkImageSrc = function (item) {
   this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("src")).notEql("")', 2);
 }
 
-TestCafeRenderer.prototype.postToServer = function () {
+TestCafeRenderer.prototype.postToServer = function (url) {
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'http://127.0.0.1:8086/scripts', true);
+  xhr.open('POST', url, true);
   xhr.onreadystatechange = function () {
     if (xhr.readyState == 4 && xhr.status == 200) {
       //alert(xhr.responseText);
@@ -530,7 +531,7 @@ window.onload = function onpageload() {
     );
     if (!download) {
       document.getElementById("run-button").onclick = function () {
-        dt.postToServer();
+        dt.postToServer(document.getElementById("run-url").value);
       };
     }
   });

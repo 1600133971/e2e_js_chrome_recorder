@@ -295,7 +295,7 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
   }
 
   //html级别没有tagName
-  var tag = element.tagName != undefined ? element.tagName.toLowerCase() : "";
+  var tag = element.tagName != undefined ? element.tagName.toLowerCase() : element.target.tagName.toLowerCase();
   if (tag === "body" || tag === "html") {
     return tag;
   }
