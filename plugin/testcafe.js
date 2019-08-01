@@ -180,9 +180,10 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
   var etypes = EventTypes;
   this.document.open();
   if (!download) {
-    this.document.writeln('<input type="text" id="run-url" value="http://127.0.0.1:8086/scripts" style="width:300px;padding:10px;margin:10px;"></button>');
-    this.document.writeln('<button id="run-button" style="width:200px;padding:10px;margin:10px;">Run</button>');
-    this.document.write("<" + "pre" + ">");
+    this.document.writeln('<input type="text" id="run-url" value="http://127.0.0.1:8086/scripts" style="width:200px;padding:10px;margin-bottom:10px;;margin-right:10px;"></button>');
+    this.document.writeln('<button id="run-button" style="width:100px;padding:10px;margin-bottom:10px;">Run</button>');
+    this.document.write('<pre>');
+    this.document.write('<code class="language-js">');
   }
   this.writeHeader(download);
   var last_down = null;
@@ -249,7 +250,13 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
   }
   this.writeFooter();
   if (!download) {
-    this.document.write("<" + "/" + "pre" + ">");
+    this.document.write('</code>');
+    this.document.write('</pre>');
+    this.document.writeln('<link rel="stylesheet" href="/rainbow/monokai.css">');
+    this.document.writeln('<script src="/rainbow/rainbow.js"></script>');
+    this.document.writeln('<script src="/rainbow/rainbow.linenumbers.js"></script>');
+    this.document.writeln('<script src="/rainbow/generic.js"></script>');
+    this.document.writeln('<script src="/rainbow/javascript.js"></script>');
   }
   download && download(document.body.innerText);
   this.document.close();
