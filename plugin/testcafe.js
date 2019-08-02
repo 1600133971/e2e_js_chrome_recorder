@@ -253,10 +253,12 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
     this.document.write('</code>');
     this.document.write('</pre>');
     this.document.writeln('<link rel="stylesheet" href="/rainbow/monokai.css">');
-    this.document.writeln('<script src="/rainbow/rainbow.js"></script>');
-    this.document.writeln('<script src="/rainbow/rainbow.linenumbers.js"></script>');
+    this.document.writeln('<link rel="stylesheet" href="/rainbow/testcafe.css">');
+    this.document.writeln('<script src="/rainbow/rainbow.min.js"></script>');
+    this.document.writeln('<script src="/rainbow/rainbow.linenumbers.min.js"></script>');
     this.document.writeln('<script src="/rainbow/generic.js"></script>');
     this.document.writeln('<script src="/rainbow/javascript.js"></script>');
+    this.document.writeln('<script src="/rainbow/testcafe.js"></script>');
   }
   download && download(document.body.innerText);
   this.document.close();

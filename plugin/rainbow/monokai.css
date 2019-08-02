@@ -128,12 +128,11 @@ pre .preloader div {
 
 pre {
   background-color: #000;
-  border-radius: 10px;
   word-wrap: break-word;
   margin: 0px;
   padding: 10px;
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 20px
 }
 

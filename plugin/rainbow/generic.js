@@ -20,15 +20,15 @@ Rainbow.extend('generic', [
                 name: 'string',
                 matches: {
                     name: 'constant.character.escape',
-                    pattern: /\\('|"|`){1}/g
+                    pattern: /\\('|"){1}/g
                 }
             }
         },
-        pattern: /(\(|\s|\[|\=|:|\+|\.|\{|,)(('|"|`)([^\\\1]|\\.)*?(\3))/gm
+        pattern: /(\(|\s|\[|\=|:|\+|\.|\{|,)(('|")([^\\\1]|\\.)*?(\3))/gm
     },
     {
         name: 'comment',
-        pattern: /\/\*[\s\S]*?\*\/|(\/\/|\#)(?!.*('|"|`).*?[^:](\/\/|\#)).*?$/gm
+        pattern: /\/\*[\s\S]*?\*\/|(\/\/|\#)(?!.*('|").*?[^:](\/\/|\#)).*?$/gm
     },
     {
         name: 'constant.numeric',

@@ -18,7 +18,7 @@ Rainbow.extend('javascript', [
     },
     {
         name: 'keyword',
-        pattern: /\b(export|default|from|fixture|await|async|t|Selector|ClientFunction)\b/g
+        pattern: /\b(export|default|from)\b/g
     },
     {
         name: 'function.call',
@@ -40,19 +40,19 @@ Rainbow.extend('javascript', [
         matches: {
             1: 'support.property'
         },
-        pattern: /\.(length|node(Name|Value)|page)\b/g
+        pattern: /\.(length|node(Name|Value))\b/g
     },
     {
         matches: {
             1: 'support.function'
         },
-        pattern: /(setTimeout|setInterval|test)(?=\()/g
+        pattern: /(setTimeout|setInterval)(?=\()/g
     },
     {
         matches: {
             1: 'support.method'
         },
-        pattern: /\.(getAttribute|replace|push|getElementById|getElementsByClassName|setTimeout|setInterval|click|find|withExactText)(?=\()/g
+        pattern: /\.(getAttribute|replace|push|getElementById|getElementsByClassName|setTimeout|setInterval)(?=\()/g
     },
 
     /**
