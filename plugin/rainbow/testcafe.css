@@ -2,3 +2,35 @@ pre {
   border-radius: 10px;
   font-size: 12px
 }
+
+pre .testcafe.keyword {
+  text-decoration: underline;
+  color: #FF0000
+}
+
+pre .testcafe.property {
+  font-style: italic;
+  color: #E6CAFF
+}
+
+pre .testcafe.function {
+  font-weight: bold;
+  color: #E800E8
+}
+
+pre .testcafe.action {
+  color: #28FF28
+}
+
+pre .testcafe.method {
+  color: #4DFFFF
+}
+
+pre .testcafe.assertion {
+  color: #FF5151
+}
+
+
+pre .testcafe.special {
+  color: #921AFF
+}

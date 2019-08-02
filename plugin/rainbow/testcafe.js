@@ -31,26 +31,44 @@ Rainbow.extend('testcafe', [
       pattern: /\/\*[\s\S]*?\*\/|(\/\/|\#)(?!.*('|"|`).*?[^:](\/\/|\#)).*?$/gm
   },
   {
-      name: 'keyword',
+      name: 'testcafe.keyword',
       pattern: /\b(fixture|await|async|t|Selector|ClientFunction)\b/g
   },
   {
       matches: {
-          1: 'support.property'
+          1: 'testcafe.property'
       },
-      pattern: /\.(page)\b/g
+      pattern: /\.(page|childElementCount|childNodeCount|hasChildElements|hasChildNodes|nodeType|textContent|attributes|boundingClientRect|checked|classNames|clientHeight|clientLeft|clientTop|clientWidth|focused|id|innerText|namespaceURI|offsetHeight|offsetLeft|offsetTop|offsetWidth|selected|selectedIndex|scrollHeight|scrollLeft|scrollTop|scrollWidth|style|tagName|value|visible|exists|count|location|href)\b/g
   },
   {
       matches: {
-          1: 'support.function'
+          1: 'testcafe.function'
       },
-      pattern: /(test)(?=\()/g
+      pattern: /(test|toString)(?=\()/g
   },
   {
       matches: {
-          1: 'support.method'
+          1: 'testcafe.action'
       },
-      pattern: /\.(click|find|withExactText)(?=\()/g
+      pattern: /\.(click|doubleClick|rightClick|drag|hover|selectText|typeText|pressKey|navigateTo|takeScreenshot|setFilesToUpload|clearUpload|resizeWindow|resizeWindowToFitDevice|maximizeWindow)(?=\()/g
+  },
+  {
+      matches: {
+          1: 'testcafe.method'
+      },
+      pattern: /\.(find|withExactText|hasClass|getStyleProperty|getAttribute|getBoundingClientRectProperty|hasAttribute)(?=\()/g
+  },
+  {
+      matches: {
+          1: 'testcafe.assertion'
+      },
+      pattern: /\.(expect|eql|notEql|ok|notOk|contains|notContains|typeOf|notTypeOf|gt|gte|lt|lte|within|notWithin|match|notMatch)(?=\()/g
+  },
+  {
+      matches: {
+          1: 'testcafe.special'
+      },
+      pattern: /\.(wait|setNativeDialogHandler|getNativeDialogHistory|switchToIframe|switchToMainWindow|debug|getBrowserConsoleMessages|setTestSpeed|setPageLoadTimeout)(?=\()/g
   }
 ], 'javascript');
 
