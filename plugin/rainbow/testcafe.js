@@ -32,7 +32,7 @@ Rainbow.extend('testcafe', [
   },
   {
       name: 'testcafe.keyword',
-      pattern: /\b(fixture|await|async|t|Selector|ClientFunction)\b/g
+      pattern: /\b(fixture|await|async|t|test|Selector|ClientFunction)\b/g
   },
   {
       matches: {
@@ -44,7 +44,7 @@ Rainbow.extend('testcafe', [
       matches: {
           1: 'testcafe.function'
       },
-      pattern: /(test|toString)(?=\()/g
+      pattern: /(toString)(?=\()/g
   },
   {
       matches: {

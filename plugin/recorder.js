@@ -605,7 +605,7 @@ TestRecorder.ContextMenu.prototype.show = function (e) {
   var wnd = recorder.window;
   var doc = wnd.document;
   this.target = e.target();
-  TestRecorder.Browser.captureEvent(wnd, "mousedown", this.onmousedown);
+  //TestRecorder.Browser.captureEvent(wnd, "mousedown", this.onmousedown);
 
   var wh = TestRecorder.Browser.windowHeight(wnd);
   var ww = TestRecorder.Browser.windowWidth(wnd);
@@ -626,7 +626,7 @@ TestRecorder.ContextMenu.prototype.show = function (e) {
 
 TestRecorder.ContextMenu.prototype.hide = function () {
   var wnd = recorder.window;
-  TestRecorder.Browser.releaseEvent(wnd, "mousedown", this.onmousedown);
+  //TestRecorder.Browser.releaseEvent(wnd, "mousedown", this.onmousedown);
   var d = wnd.document;
   var b = d.getElementsByTagName("body").item(0);
   this.menu.style.display = "none";
@@ -1077,7 +1077,7 @@ TestRecorder.Recorder.prototype.ondrag = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onmousedown = function (e) {
-  //console.log(e);
+  //console.log("onmousedown:", e);
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
     if (e.button() == TestRecorder.Event.LeftButton) {
@@ -1103,10 +1103,9 @@ TestRecorder.Recorder.prototype.onmouseover = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onmouseup = function (e) {
-  //console.log(e);
+  //console.log("onmouseup:", e);
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
-
     //鼠标左键弹起
     if (e.button() == TestRecorder.Event.LeftButton) {
       recorder.testcase.append(
@@ -1166,7 +1165,7 @@ TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
 }
 
 TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
-  //console.log(e);
+  //console.log("oncontextmenu:", e);
   var e = new TestRecorder.Event(e);
 
   //右键屏蔽原有菜单，显示定制菜单，右击由shift+click激活

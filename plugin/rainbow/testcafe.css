@@ -5,17 +5,17 @@ pre {
 
 pre .testcafe.keyword {
   text-decoration: underline;
-  color: #FF0000
+  color: #E800E8
 }
 
 pre .testcafe.property {
   font-style: italic;
-  color: #E6CAFF
+  color: #02DF82
 }
 
 pre .testcafe.function {
   font-weight: bold;
-  color: #E800E8
+  color: #FF5809
 }
 
 pre .testcafe.action {
@@ -23,7 +23,7 @@ pre .testcafe.action {
 }
 
 pre .testcafe.method {
-  color: #4DFFFF
+  color: #00FFFF
 }
 
 pre .testcafe.assertion {
