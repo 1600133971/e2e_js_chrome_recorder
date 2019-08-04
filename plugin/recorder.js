@@ -287,6 +287,7 @@ TestRecorder.ElementInfo = function (element) {
   }
   this.label = this.findLabelText(element);
   this.path = this.getPath(element);
+  this.textContent = element.textContent;
 }
 
 TestRecorder.ElementInfo.prototype.getPath = function (element) {
@@ -1036,7 +1037,7 @@ TestRecorder.Recorder.prototype.onpageload = function () {
 }
 
 TestRecorder.Recorder.prototype.onchange = function (e) {
-  //console.log(e);
+  //console.log("onchange:", e);
   var e = new TestRecorder.Event(e);
   var last = recorder.testcase.peek();
   if (last != undefined && last.type != undefined && last.type == TestRecorder.EventTypes.Click) {
@@ -1051,13 +1052,13 @@ TestRecorder.Recorder.prototype.onchange = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onselect = function (e) {
-  //console.log(e);
+  //console.log("onselect:", e);
   var e = new TestRecorder.Event(e);
   recorder.log("select: " + e.target());
 }
 
 TestRecorder.Recorder.prototype.onsubmit = function (e) {
-  //console.log(e);
+  //console.log("onsubmit:", e);
   var e = new TestRecorder.Event(e);
   var et = TestRecorder.EventTypes;
   // We want to save the form element as the event target
@@ -1093,7 +1094,7 @@ TestRecorder.Recorder.prototype.onmousedown = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onmouseover = function (e) {
-  //console.log(e);
+  //console.log("onmouseover:", e);
   if (!contextmenu.visible) {
     var e = new TestRecorder.Event(e);
     if (e.target().className == "hov") {
@@ -1128,7 +1129,7 @@ TestRecorder.Recorder.prototype.onmouseup = function (e) {
 //IE. In both cases, we need to prevent the default action for cmenu.
 
 TestRecorder.Recorder.prototype.onclick = function (e) {
-  //console.log(e);
+  //console.log("onclick:", e);
   var e = new TestRecorder.Event(e);
 
   //shift+click模拟鼠标右击
@@ -1154,7 +1155,7 @@ TestRecorder.Recorder.prototype.onclick = function (e) {
 }
 
 TestRecorder.Recorder.prototype.ondoubleclick = function (e) {
-  //console.log(e);
+  //console.log("ondoubleclick:", e);
   var e = new TestRecorder.Event(e);
 
   if (e.button() == TestRecorder.Event.LeftButton) {
@@ -1181,7 +1182,7 @@ TestRecorder.Recorder.prototype.oncontextmenu = function (e) {
 
 //keypress不能拦截功能键，只能拦截可打印字符
 TestRecorder.Recorder.prototype.onkeypress = function (e) {
-  //console.log(e);
+  //console.log("onkeypress:", e);
   var e = new TestRecorder.Event(e);
 
   //shift+S激活截屏事件
@@ -1208,7 +1209,7 @@ TestRecorder.Recorder.prototype.onkeypress = function (e) {
 }
 
 TestRecorder.Recorder.prototype.onkeydown = function (e) {
-  //console.log(e);
+  //console.log("onkeydown:", e);
   var e = new TestRecorder.Event(e);
   var et = TestRecorder.EventTypes;
   //console.log("onkeydown keycode:", e.keycode);
