@@ -253,6 +253,7 @@ TestRecorder.EventTypes.NativeDialog = 32;
 TestRecorder.EventTypes.Debug = 33;
 TestRecorder.EventTypes.TestSpeed = 34;
 TestRecorder.EventTypes.PageLoadTimeout = 35;
+TestRecorder.EventTypes.UploadFile = 36;
 
 //item.info信息
 TestRecorder.ElementInfo = function (element) {
@@ -957,6 +958,8 @@ TestRecorder.Recorder.prototype.clickaction = function (e) {
     var t = e.target();
     if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "submit")) {
       this.testcase.append(new TestRecorder.ElementEvent(et.Click, e.target()));
+    } else if (t.type && t.type == "file") {
+      this.testcase.append(new TestRecorder.ElementEvent(et.UploadFile, e.target()));
     } else {
       this.testcase.append(new TestRecorder.MouseEvent(et.Click, e.target(), e.posX(), e.posY()));
     }

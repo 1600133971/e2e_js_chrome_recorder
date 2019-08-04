@@ -23,21 +23,21 @@ pre .testcafe.action {
 }
 
 pre .testcafe.method {
-  color: #00FFFF
+  color: #F75000
 }
 
 pre .testcafe.assertion {
-  color: #FF5151
+  color: #00FFFF
 }
 
 pre .testcafe.assertion.judge {
-  color: rgb(209, 77, 169)
+  color: #00BFFF
 }
 
 pre .testcafe.window {
-  color: #921AFF
+  color: #FFE4C4
 }
 
 pre .testcafe.debug {
-  color: rgb(177, 8, 30)
+  color: #FF0000
 }

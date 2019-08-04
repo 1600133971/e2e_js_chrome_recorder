@@ -43,6 +43,7 @@ EventTypes.NativeDialog = 32;
 EventTypes.Debug = 33;
 EventTypes.TestSpeed = 34;
 EventTypes.PageLoadTimeout = 35;
+EventTypes.UploadFile = 36;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -170,6 +171,7 @@ d[EventTypes.NativeDialog] = "nativeDialog";
 d[EventTypes.Debug] = "debug";
 d[EventTypes.TestSpeed] = "testSpeed";
 d[EventTypes.PageLoadTimeout] = "pageLoadTimeout";
+d[EventTypes.UploadFile] = "uploadFile";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -394,6 +396,10 @@ TestCafeRenderer.prototype.testSpeed = function (item) {
 
 TestCafeRenderer.prototype.pageLoadTimeout = function (item) {
   this.stmt('.setPageLoadTimeout(' + item.text + ')', 2);
+}
+
+TestCafeRenderer.prototype.uploadFile = function (item) {
+  //在change处理
 }
 
 TestCafeRenderer.prototype.change = function (item) {
