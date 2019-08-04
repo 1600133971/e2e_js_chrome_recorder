@@ -326,12 +326,12 @@ TestCafeRenderer.prototype.getControl = function (item) {
   var selector;
   if (item.info.id) {
     selector = tag + '#' + item.info.id;
+  } else if (item.info.path != "") {
+    selector = item.info.path;
   } else if ((type == "submit" || type == "button") && item.info.value) {
     selector = tag + '[type=' + type + '][value=' + this.pyrepr(item.info.value) + ']';
   } else if (item.info.name) {
     selector = tag + '[name=' + this.pyrepr(item.info.name) + ']';
-  } else if (item.info.path != "") {
-    selector = item.info.path;
   } else {
     selector = item.info.selector;
   }

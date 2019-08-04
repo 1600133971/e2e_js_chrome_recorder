@@ -50,7 +50,7 @@ Rainbow.extend('testcafe', [
       matches: {
           1: 'testcafe.action'
       },
-      pattern: /\.(click|doubleClick|rightClick|drag|hover|selectText|typeText|pressKey|navigateTo|takeScreenshot|setFilesToUpload|clearUpload|resizeWindow|resizeWindowToFitDevice|maximizeWindow)(?=\()/g
+      pattern: /\.(click|doubleClick|rightClick|drag|hover|selectText|typeText|pressKey|navigateTo|takeScreenshot|setFilesToUpload|clearUpload|resizeWindow|resizeWindowToFitDevice|maximizeWindow|wait)(?=\()/g
   },
   {
       matches: {
@@ -62,13 +62,25 @@ Rainbow.extend('testcafe', [
       matches: {
           1: 'testcafe.assertion'
       },
-      pattern: /\.(expect|eql|notEql|ok|notOk|contains|notContains|typeOf|notTypeOf|gt|gte|lt|lte|within|notWithin|match|notMatch)(?=\()/g
+      pattern: /\.(expect)(?=\()/g
   },
   {
       matches: {
-          1: 'testcafe.special'
+          1: 'testcafe.assertion.judge'
       },
-      pattern: /\.(wait|setNativeDialogHandler|getNativeDialogHistory|switchToIframe|switchToMainWindow|debug|getBrowserConsoleMessages|setTestSpeed|setPageLoadTimeout)(?=\()/g
+      pattern: /\.(eql|notEql|ok|notOk|contains|notContains|typeOf|notTypeOf|gt|gte|lt|lte|within|notWithin|match|notMatch)(?=\()/g
+  },
+  {
+      matches: {
+          1: 'testcafe.window'
+      },
+      pattern: /\.(setNativeDialogHandler|getNativeDialogHistory|switchToIframe|switchToMainWindow)(?=\()/g
+  },
+  {
+      matches: {
+          1: 'testcafe.debug'
+      },
+      pattern: /\.(debug|getBrowserConsoleMessages|setTestSpeed|setPageLoadTimeout)(?=\()/g
   }
 ], 'javascript');
 

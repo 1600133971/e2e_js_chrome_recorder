@@ -30,7 +30,14 @@ pre .testcafe.assertion {
   color: #FF5151
 }
 
+pre .testcafe.assertion.judge {
+  color: rgb(209, 77, 169)
+}
 
-pre .testcafe.special {
+pre .testcafe.window {
   color: #921AFF
+}
+
+pre .testcafe.debug {
+  color: rgb(177, 8, 30)
 }
