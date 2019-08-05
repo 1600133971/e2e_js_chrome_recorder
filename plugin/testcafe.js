@@ -44,6 +44,7 @@ EventTypes.Debug = 33;
 EventTypes.TestSpeed = 34;
 EventTypes.PageLoadTimeout = 35;
 EventTypes.UploadFile = 36;
+EventTypes.SelectText = 37;
 
 function TestCafeRenderer(document) {
   this.document = document;
@@ -172,6 +173,7 @@ d[EventTypes.Debug] = "debug";
 d[EventTypes.TestSpeed] = "testSpeed";
 d[EventTypes.PageLoadTimeout] = "pageLoadTimeout";
 d[EventTypes.UploadFile] = "uploadFile";
+d[EventTypes.SelectText] = "selectText";
 
 TestCafeRenderer.prototype.dispatch = d;
 
@@ -182,7 +184,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
   var etypes = EventTypes;
   this.document.open();
   if (!download) {
-    this.document.writeln('<input type="text" id="run-url" value="http://127.0.0.1:8086/scripts" style="width:200px;padding:10px;margin-bottom:10px;;margin-right:10px;"></button>');
+    this.document.writeln('<input type="text" id="run-url" value="http://127.0.0.1:8086/scripts" style="width:200px;padding:10px;margin-bottom:10px;margin-right:10px;"></button>');
     this.document.writeln('<button id="run-button" style="width:100px;padding:10px;margin-bottom:10px;">Run</button>');
     this.document.write('<pre>');
     this.document.write('<code class="language-js">');
@@ -218,6 +220,11 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
           (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         }
+        //MouseDown //MouseUp<- //Click //Click //MouseDown //MouseUp<- //Click //Click //DoubleClick
+        else if ((this.items[i + 7] && this.items[i + 7].type == etypes.DoubleClick && this.items[i + 7].x == item.x && this.items[i + 7].y == item.y) ||
+          (this.items[i + 3] && this.items[i + 3].type == etypes.DoubleClick && this.items[i + 3].x == item.x && this.items[i + 3].y == item.y)) {
+          //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
+        }
         //MouseDown //MouseUp<- //RightClick
         else if (this.items[i + 1] && this.items[i + 1].type == etypes.RightClick && this.items[i + 1].x == item.x && this.items[i + 1].y == item.y) {
           //RightClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
@@ -235,6 +242,12 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
     }
     if (item.type == etypes.Click && forget_click) {
       forget_click = false;
+      continue;
+    }
+
+    //[场景]checkbox点击label,序列：//MouseDown //MouseUp //Click[上述算法消除] //Click[本算法跳过]
+    if (i > 0 && item.type == etypes.Click &&
+      (this.items[i - 1].type == etypes.Click && this.items[i - 1].x == item.x && this.items[i - 1].y == item.y)) {
       continue;
     }
 
@@ -340,6 +353,22 @@ TestCafeRenderer.prototype.getControl = function (item) {
   return selector;
 }
 
+TestCafeRenderer.prototype.getSelector = function (item) {
+  var type = item.info.type;
+  var tag = item.info.tagName.toLowerCase();
+  if (item.info.id) {
+    return 'Selector("' + tag + '#' + item.info.id + '")';
+  } else if ((type == "button" || type == "submit") && item.info.path && item.info.textContent && item.info.textContent != "") {
+    return 'Selector("' + item.info.path + '").withExactText("' + item.info.textContent + '")';
+  } else if (item.info.path && item.info.path != "") {
+    return 'Selector("' + item.info.path + '")';
+  } else if (item.info.name && item.info.name != "") {
+    return 'Selector("' + tag + '[name="' + item.info.name + '"]' + '")';
+  } else {
+    return 'Selector("' + item.info.selector + '")';
+  }
+}
+
 TestCafeRenderer.prototype.mousedrag = function (item) {
   var selector = '"' + this.getControl(item) + '"';
   var dragOffsetX = item.x - item.before.x;
@@ -400,6 +429,10 @@ TestCafeRenderer.prototype.pageLoadTimeout = function (item) {
 
 TestCafeRenderer.prototype.uploadFile = function (item) {
   //在change处理
+}
+
+TestCafeRenderer.prototype.selectText = function (item) {
+  this.stmt('.selectText(' + this.getSelector(item) + ', ' + item.info.selectionStart.toString() + ',' + item.info.selectionEnd.toString() + ')', 2);
 }
 
 TestCafeRenderer.prototype.change = function (item) {

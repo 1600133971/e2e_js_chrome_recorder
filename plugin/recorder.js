@@ -254,6 +254,7 @@ TestRecorder.EventTypes.Debug = 33;
 TestRecorder.EventTypes.TestSpeed = 34;
 TestRecorder.EventTypes.PageLoadTimeout = 35;
 TestRecorder.EventTypes.UploadFile = 36;
+TestRecorder.EventTypes.SelectText = 37;
 
 //item.info信息
 TestRecorder.ElementInfo = function (element) {
@@ -287,7 +288,9 @@ TestRecorder.ElementInfo = function (element) {
   }
   this.label = this.findLabelText(element);
   this.path = this.getPath(element);
-  this.textContent = element.textContent;
+  this.textContent = element.textContent.indexOf("\\n") >= 0 ? "" : element.textContent;
+  this.selectionStart = element.selectionStart;
+  this.selectionEnd = element.selectionEnd;
 }
 
 TestRecorder.ElementInfo.prototype.getPath = function (element) {
@@ -1040,7 +1043,7 @@ TestRecorder.Recorder.prototype.onchange = function (e) {
   //console.log("onchange:", e);
   var e = new TestRecorder.Event(e);
   var last = recorder.testcase.peek();
-  if (last != undefined && last.type != undefined && last.type == TestRecorder.EventTypes.Click) {
+  if (last != undefined && last.type != undefined && (last.type == TestRecorder.EventTypes.Click || last.type == TestRecorder.EventTypes.UploadFile)) {
     //前一个动作是Click，本次动作上报Change，触发typeText[场景：点击自动完成内容]
     var et = TestRecorder.EventTypes;
     var v = new TestRecorder.ElementEvent(et.Change, e.target());
@@ -1054,7 +1057,9 @@ TestRecorder.Recorder.prototype.onchange = function (e) {
 TestRecorder.Recorder.prototype.onselect = function (e) {
   //console.log("onselect:", e);
   var e = new TestRecorder.Event(e);
-  recorder.log("select: " + e.target());
+  var et = TestRecorder.EventTypes;
+  var v = new TestRecorder.ElementEvent(et.SelectText, e.target());
+  recorder.testcase.append(v);
 }
 
 TestRecorder.Recorder.prototype.onsubmit = function (e) {
