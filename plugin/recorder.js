@@ -610,8 +610,6 @@ TestRecorder.ContextMenu.prototype.show = function (e) {
   var wnd = recorder.window;
   var doc = wnd.document;
   this.target = e.target();
-  //TestRecorder.Browser.captureEvent(wnd, "mousedown", this.onmousedown);
-
   var wh = TestRecorder.Browser.windowHeight(wnd);
   var ww = TestRecorder.Browser.windowWidth(wnd);
   var x = e.posX();
@@ -631,7 +629,6 @@ TestRecorder.ContextMenu.prototype.show = function (e) {
 
 TestRecorder.ContextMenu.prototype.hide = function () {
   var wnd = recorder.window;
-  //TestRecorder.Browser.releaseEvent(wnd, "mousedown", this.onmousedown);
   var d = wnd.document;
   var b = d.getElementsByTagName("body").item(0);
   this.menu.style.display = "none";
@@ -1077,7 +1074,7 @@ TestRecorder.Recorder.prototype.onsubmit = function (e) {
 }
 
 TestRecorder.Recorder.prototype.ondrag = function (e) {
-  //console.log(e);
+  //console.log("ondrag:", e);
   var e = new TestRecorder.Event(e);
   recorder.testcase.append(
     new TestRecorder.MouseEvent(
@@ -1237,6 +1234,13 @@ TestRecorder.Recorder.prototype.onkeydown = function (e) {
   if (e.keycode() == 13 /*Enter*/) {
     recorder.testcase.append(
       new TestRecorder.ElementEvent(et.PressKey, e.target(), "enter")
+    );
+  }
+
+  //点击Delete键
+  if (e.keycode() == 46 /*Delete*/) {
+    recorder.testcase.append(
+      new TestRecorder.ElementEvent(et.PressKey, e.target(), "delete")
     );
   }
 
