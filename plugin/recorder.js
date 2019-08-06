@@ -957,9 +957,9 @@ TestRecorder.Recorder.prototype.clickaction = function (e) {
   if (!contextmenu.visible) {
     var et = TestRecorder.EventTypes;
     var t = e.target();
-    if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "submit")) {
+    if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "button")) {
       this.testcase.append(new TestRecorder.ElementEvent(et.Click, e.target()));
-    } else if (t.type && t.type == "file") {
+    } else if (t.type && t.type == "file" && t.target.tagName && t.target.tagName.toLowerCase() == "input") {
       this.testcase.append(new TestRecorder.ElementEvent(et.UploadFile, e.target()));
     } else {
       this.testcase.append(new TestRecorder.MouseEvent(et.Click, e.target(), e.posX(), e.posY()));
@@ -980,7 +980,7 @@ TestRecorder.Recorder.prototype.doubleclickaction = function (e) {
   if (!contextmenu.visible) {
     var et = TestRecorder.EventTypes;
     var t = e.target();
-    if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "submit")) {
+    if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "button")) {
       this.testcase.append(new TestRecorder.ElementEvent(et.Click, e.target()));
     } else {
       this.testcase.append(new TestRecorder.MouseEvent(et.DoubleClick, e.target(), e.posX(), e.posY()));

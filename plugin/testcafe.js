@@ -220,9 +220,9 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
           (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         }
-        //MouseDown //MouseUp<- //Click //Click //MouseDown //MouseUp<- //Click //Click //DoubleClick
-        else if ((this.items[i + 7] && this.items[i + 7].type == etypes.DoubleClick && this.items[i + 7].x == item.x && this.items[i + 7].y == item.y) ||
-          (this.items[i + 3] && this.items[i + 3].type == etypes.DoubleClick && this.items[i + 3].x == item.x && this.items[i + 3].y == item.y)) {
+        //MouseDown //MouseUp<- //Click //Click //Change //MouseDown //MouseUp<- //Click //Click //Change //DoubleClick
+        else if ((this.items[i + 9] && this.items[i + 9].type == etypes.DoubleClick && this.items[i + 9].x == item.x && this.items[i + 9].y == item.y) ||
+          (this.items[i + 4] && this.items[i + 4].type == etypes.DoubleClick && this.items[i + 4].x == item.x && this.items[i + 4].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         }
         //MouseDown //MouseUp<- //RightClick
@@ -247,7 +247,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
 
     //[场景]checkbox点击label,序列：//MouseDown //MouseUp //Click[上述算法消除] //Click[本算法跳过]
     if (i > 0 && item.type == etypes.Click &&
-      (this.items[i - 1].type == etypes.Click && this.items[i - 1].x == item.x && this.items[i - 1].y == item.y)) {
+      (this.items[i - 1].type && this.items[i - 1].type == etypes.Click && this.items[i - 1].x == item.x && this.items[i - 1].y == item.y)) {
       continue;
     }
 
@@ -335,17 +335,21 @@ TestCafeRenderer.prototype.normalizeWhitespace = function (s) {
   return s.replace(/^\s*/, '').replace(/\s*$/, '').replace(/\s+/g, ' ');
 }
 
+TestCafeRenderer.prototype.nonEmpty = function (item) {
+  return item && item != undefined && item != "";
+}
+
 TestCafeRenderer.prototype.getControl = function (item) {
   var type = item.info.type;
   var tag = item.info.tagName.toLowerCase();
   var selector;
-  if (item.info.id) {
+  if (this.nonEmpty(item.info.id)) {
     selector = tag + '#' + item.info.id;
-  } else if (item.info.path != "") {
+  } else if (this.nonEmpty(item.info.path)) {
     selector = item.info.path;
-  } else if ((type == "submit" || type == "button") && item.info.value) {
+  } else if ((type == "submit" || type == "button") && this.nonEmpty(item.info.value)) {
     selector = tag + '[type=' + type + '][value=' + this.pyrepr(item.info.value) + ']';
-  } else if (item.info.name) {
+  } else if (this.nonEmpty(item.info.name)) {
     selector = tag + '[name=' + this.pyrepr(item.info.name) + ']';
   } else {
     selector = item.info.selector;
@@ -356,13 +360,13 @@ TestCafeRenderer.prototype.getControl = function (item) {
 TestCafeRenderer.prototype.getSelector = function (item) {
   var type = item.info.type;
   var tag = item.info.tagName.toLowerCase();
-  if (item.info.id) {
+  if (this.nonEmpty(item.info.id)) {
     return 'Selector("' + tag + '#' + item.info.id + '")';
-  } else if ((type == "button" || type == "submit") && item.info.path && item.info.textContent && item.info.textContent != "") {
+  } else if ((type == "button" || type == "submit") && this.nonEmpty(item.info.path) && this.nonEmpty(item.info.textContent)) {
     return 'Selector("' + item.info.path + '").withExactText("' + item.info.textContent + '")';
-  } else if (item.info.path && item.info.path != "") {
+  } else if (this.nonEmpty(item.info.path)) {
     return 'Selector("' + item.info.path + '")';
-  } else if (item.info.name && item.info.name != "") {
+  } else if (this.nonEmpty(item.info.name)) {
     return 'Selector("' + tag + '[name="' + item.info.name + '"]' + '")';
   } else {
     return 'Selector("' + item.info.selector + '")';
@@ -428,7 +432,7 @@ TestCafeRenderer.prototype.pageLoadTimeout = function (item) {
 }
 
 TestCafeRenderer.prototype.uploadFile = function (item) {
-  //在change处理
+  //在change处理，因为只有change才能上报真正变化的文本
 }
 
 TestCafeRenderer.prototype.selectText = function (item) {
@@ -450,7 +454,7 @@ TestCafeRenderer.prototype.change = function (item) {
   }
 
   //点击后触发upload
-  if (tag == 'input' && item.info.type == 'file') {
+  if (tag == 'input' && item.info.type == 'file' && tag != undefined && tag == "input") {
     this.stmt('.setFilesToUpload(Selector(' + selector + '), "' + item.info.value + '")', 2);
   }
 }
@@ -526,11 +530,13 @@ TestCafeRenderer.prototype.checkHref = function (item) {
 
 TestCafeRenderer.prototype.checkEnabled = function (item) {
   this.stmt('.expect(await Selector("' + this.getControl(item) + '").hasAttribute("disabled")).notOk()', 2);
+  this.stmt('.expect("' + this.getControl(item) + '").notContains("disabled")', 2);
 }
 
 TestCafeRenderer.prototype.checkDisabled = function (item) {
   this.stmt('.expect(await Selector("' + this.getControl(item) + '").hasAttribute("disabled")).ok()', 2);
   this.stmt('.expect(await Selector("' + this.getControl(item) + '").getAttribute("disabled")).eql("disabled")', 2);
+  this.stmt('.expect("' + this.getControl(item) + '").contains("disabled")', 2);
 }
 
 TestCafeRenderer.prototype.checkSelectValue = function (item) {
