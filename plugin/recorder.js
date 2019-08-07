@@ -309,7 +309,7 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
   var className = element.className.trim();
 
   //button类型含class单独列出
-  if ((tag == "button" || tag == "a" || tag == "i") && className != "") {
+  if ((tag == "button" || element.type == "submit") && className != "") {
     return tag + "." + className.replace(/[ ]/g, ".");
   }
 

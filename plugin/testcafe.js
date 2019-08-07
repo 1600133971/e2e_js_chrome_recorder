@@ -362,7 +362,7 @@ TestCafeRenderer.prototype.getSelector = function (item) {
   var tag = item.info.tagName.toLowerCase();
   if (this.nonEmpty(item.info.id)) {
     return 'Selector("' + tag + '#' + item.info.id + '")';
-  } else if ((type == "button" || type == "submit") && this.nonEmpty(item.info.path) && this.nonEmpty(item.info.textContent)) {
+  } else if ((type == "button" || type == "submit" || tag == "button" || tag == "i") && this.nonEmpty(item.info.path) && this.nonEmpty(item.info.textContent)) {
     return 'Selector("' + item.info.path + '").withExactText("' + item.info.textContent + '")';
   } else if (this.nonEmpty(item.info.path)) {
     return 'Selector("' + item.info.path + '")';
