@@ -220,7 +220,7 @@ TestCafeRenderer.prototype.render = function (with_xy, download) {
           (this.items[i + 2] && this.items[i + 2].type == etypes.DoubleClick && this.items[i + 2].x == item.x && this.items[i + 2].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
         }
-        //MouseDown //MouseUp<- //Click //Click //Change //MouseDown //MouseUp<- //Click //Click //Change //DoubleClick
+        //MouseDown //MouseUp<- //Click //Click //Change //MouseDown //MouseUp<- //Click //Click //Change //DoubleClick[特殊场景：点击checkbox的关联label，会激发checkbox的click,数值改变激活Change]
         else if ((this.items[i + 9] && this.items[i + 9].type == etypes.DoubleClick && this.items[i + 9].x == item.x && this.items[i + 9].y == item.y) ||
           (this.items[i + 4] && this.items[i + 4].type == etypes.DoubleClick && this.items[i + 4].x == item.x && this.items[i + 4].y == item.y)) {
           //DoubleClick情况，过滤本次MouseDown/MouseUp，同时滤过接下来一个Click
@@ -336,7 +336,7 @@ TestCafeRenderer.prototype.normalizeWhitespace = function (s) {
 }
 
 TestCafeRenderer.prototype.nonEmpty = function (item) {
-  return item && item != undefined && item != "";
+  return item && item != "";
 }
 
 TestCafeRenderer.prototype.getControl = function (item) {
@@ -381,18 +381,21 @@ TestCafeRenderer.prototype.mousedrag = function (item) {
 }
 
 TestCafeRenderer.prototype.click = function (item) {
-  var selector = '"' + this.getControl(item) + '"';
-  this.stmt('.click(Selector(' + selector + '))', 2);
+  //var selector = '"' + this.getControl(item) + '"';
+  //this.stmt('.click(Selector(' + selector + '))', 2);
+  this.stmt('.click(' + this.getSelector(item) + ')', 2);
 }
 
 TestCafeRenderer.prototype.doubleclick = function (item) {
-  var selector = '"' + this.getControl(item) + '"';
-  this.stmt('.doubleClick(Selector(' + selector + '))', 2);
+  //var selector = '"' + this.getControl(item) + '"';
+  //this.stmt('.doubleClick(Selector(' + selector + '))', 2);
+  this.stmt('.doubleClick(' + this.getSelector(item) + ')', 2);
 }
 
 TestCafeRenderer.prototype.rightclick = function (item) {
-  var selector = '"' + this.getControl(item) + '"';
-  this.stmt('.rightClick(Selector(' + selector + '))', 2);
+  //var selector = '"' + this.getControl(item) + '"';
+  //this.stmt('.rightClick(Selector(' + selector + '))', 2);
+  this.stmt('.rightClick(' + this.getSelector(item) + ')', 2);
 }
 
 TestCafeRenderer.prototype.presskey = function (item) {
@@ -454,8 +457,8 @@ TestCafeRenderer.prototype.change = function (item) {
   }
 
   //点击后触发upload
-  if (tag == 'input' && item.info.type == 'file' && tag != undefined && tag == "input") {
-    this.stmt('.setFilesToUpload(Selector(' + selector + '), "' + item.info.value + '")', 2);
+  if (tag == 'input' && item.info.type == 'file' && item.info.value != "") {
+    this.stmt('.setFilesToUpload(Selector(' + selector + '), "' + item.info.value.replace(/\\/g, "/") + '")', 2);
   }
 }
 

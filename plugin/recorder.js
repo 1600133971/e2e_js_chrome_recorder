@@ -256,7 +256,7 @@ TestRecorder.EventTypes.PageLoadTimeout = 35;
 TestRecorder.EventTypes.UploadFile = 36;
 TestRecorder.EventTypes.SelectText = 37;
 
-//item.info信息
+//item.info信息，来自target
 TestRecorder.ElementInfo = function (element) {
   this.action = element.action;
   this.method = element.method;
@@ -295,12 +295,12 @@ TestRecorder.ElementInfo = function (element) {
 
 TestRecorder.ElementInfo.prototype.getPath = function (element) {
   // 无效
-  if (element == undefined || element == null || element == "") {
+  if (element == null) {
     return "";
   }
 
   //html级别没有tagName
-  var tag = element.tagName != undefined ? element.tagName.toLowerCase() : element.target.tagName.toLowerCase();
+  var tag = element.tagName.toLowerCase();
   if (tag === "body" || tag === "html") {
     return tag;
   }
@@ -309,7 +309,7 @@ TestRecorder.ElementInfo.prototype.getPath = function (element) {
   var className = element.className.trim();
 
   //button类型含class单独列出
-  if (tag === "button" && className != "") {
+  if ((tag == "button" || tag == "a" || tag == "i") && className != "") {
     return tag + "." + className.replace(/[ ]/g, ".");
   }
 
@@ -958,11 +958,11 @@ TestRecorder.Recorder.prototype.clickaction = function (e) {
     var et = TestRecorder.EventTypes;
     var t = e.target();
     if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "button")) {
-      this.testcase.append(new TestRecorder.ElementEvent(et.Click, e.target()));
-    } else if (t.type && t.type == "file" && t.target.tagName && t.target.tagName.toLowerCase() == "input") {
-      this.testcase.append(new TestRecorder.ElementEvent(et.UploadFile, e.target()));
+      this.testcase.append(new TestRecorder.ElementEvent(et.Click, t));
+    } else if (t.type && t.type == "file" && t.tagName && t.tagName.toLowerCase() == "input") {
+      this.testcase.append(new TestRecorder.ElementEvent(et.UploadFile, t));
     } else {
-      this.testcase.append(new TestRecorder.MouseEvent(et.Click, e.target(), e.posX(), e.posY()));
+      this.testcase.append(new TestRecorder.MouseEvent(et.Click, t, e.posX(), e.posY()));
     }
   } else {
     contextmenu.hide();
@@ -981,9 +981,9 @@ TestRecorder.Recorder.prototype.doubleclickaction = function (e) {
     var et = TestRecorder.EventTypes;
     var t = e.target();
     if (t.href || (t.type && t.type == "submit") || (t.type && t.type == "button")) {
-      this.testcase.append(new TestRecorder.ElementEvent(et.Click, e.target()));
+      this.testcase.append(new TestRecorder.ElementEvent(et.Click, t));
     } else {
-      this.testcase.append(new TestRecorder.MouseEvent(et.DoubleClick, e.target(), e.posX(), e.posY()));
+      this.testcase.append(new TestRecorder.MouseEvent(et.DoubleClick, t, e.posX(), e.posY()));
     }
   }
 }
