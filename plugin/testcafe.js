@@ -57,8 +57,21 @@ function TestCafeRenderer(document) {
 }
 
 TestCafeRenderer.prototype.download = function (fileName, content) {
+  function bt(content) {
+    return content
+    .replace(/;\s/g, ';\n\n')
+    .replace(/`\s\./g, '`\n  .')
+    .replace(/=>\s{\s/g, '=> {\n  ')
+    .replace(/await\st\s\./g, 'await t\n    .')
+    .replace(/\)\s\./g, ')\n    .')
+    .replace(/\)\s\/\*/g, ')\n    /*')
+    .replace(/\s\}\);/g, '\n});');
+  }
   var inst = document.createElement("a"),
-    blob = new Blob([js_beautify(content)], {
+    /*blob = new Blob([js_beautify(content)], {
+      "type": "text/javascript"
+    }),*/
+    blob = new Blob([bt(content)], {
       "type": "text/javascript"
     }),
     evt = document.createEvent("HTMLEvents");
